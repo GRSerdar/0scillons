@@ -44,7 +44,6 @@ class CTTKBHConstraintSolver :
         
         # added this as wel
         self.rho = []
-        self.rho.append(0) #It is allowed to start with zero 
         
         # Modified gravity objects
         self.gb_vars = GBVars(N)
