@@ -42,8 +42,6 @@ class CTTKBHConstraintSolver :
         self.AijAij =[]
         self.Lap_psi_over_psi5 = []
         
-        # added this as wel
-        self.rho = []
         
         # Modified gravity objects
         self.gb_vars = GBVars(N)
@@ -218,6 +216,12 @@ class CTTKBHConstraintSolver :
         #self.Lap_psi_over_psi5 = -0.25 * ((self.MBH**2.0 + 16.0 * CC * self.MBH * self.R**3.0 
         #                                  + 4.0 * CC * self.R**4.0 * (3.0 - 2.0 * CC * self.R**2.0)) 
         #                                  / ((self.MBH + self.R - CC * self.R**3.0)**4.0))
+
+        if self.MBH == 0.0:
+            H0  = np.sqrt(np.mean(self.rho) / 3.0)    # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
+            print("H0: ", H0)
+            K_FLRW  = -3.0 * H0                                 
+            self.K0 = K_FLRW * np.ones_like(self.R)
         
         self.matter_source_set = True        
         
@@ -229,16 +233,8 @@ class CTTKBHConstraintSolver :
         self.gtt = self.psi**4.0 * self.htt
         self.gpp = self.psi**4.0 * self.hpp
         self.Lap_psi_over_psi5 = np.zeros_like(self.R)
-
-        # Should K0 be changed here ? ?
-        # -- Calculate H0 from MG density here ? --
-
-        H0 = np.sqrt(np.mean(self.rho) /3) # When I do this, self.rho is still empty 
-        print(np.mean(self.rho))
-        K_FLRW = - 3 * H0
-        self.K0 = K_FLRW * np.ones_like(self.R)
         
-        #self.K0 = np.zeros_like(self.R)
+        self.K0 = np.zeros_like(self.R)
 
         self.Wr0 = np.zeros_like(self.R)
         self.dWrdr0 = np.zeros_like(self.R)

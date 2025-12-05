@@ -83,7 +83,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
         return out
     
     #bumper = (bump_amplitude, 6, 14)
-    bumper = (bump_amplitude, 5, 5+R)
+    bumper = (bump_amplitude, 20, 20+R)
     A   = bumper[0]
     rl  = bumper[1]
     ru  = bumper[2]
