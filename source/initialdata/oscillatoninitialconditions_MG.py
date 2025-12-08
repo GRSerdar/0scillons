@@ -31,9 +31,9 @@ def get_initial_state(grid: Grid, background, bumper) :
     ) = initial_state
     
     # Get stationary oscillaton data for the vars, in both positive and negative R
-    grr0_data    = np.loadtxt("../source/initialdata/oscillaton/grr0.csv")
-    lapse0_data  = np.loadtxt("../source/initialdata/oscillaton/lapse0.csv")
-    v0_data      = np.loadtxt("../source/initialdata/oscillaton/v0.csv")
+    grr0_data    = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/grr0.csv")
+    lapse0_data  = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/lapse0.csv")
+    v0_data      = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/v0.csv")
     length       = np.size(grr0_data)
     grr0_data    = np.concatenate((np.flip(grr0_data), grr0_data[1:length]))
     lapse0_data  = np.concatenate((np.flip(lapse0_data), lapse0_data[1:length]))
@@ -52,21 +52,19 @@ def get_initial_state(grid: Grid, background, bumper) :
     ###########################################################################
     # Oscillon modification
     
-    def bump(r, A, rl, ru):
-        out = np.zeros_like(r)
-        mask = (r > rl) & (r < ru)
-        x = r[mask]
-        out[mask] = A*(x-rl)**2*(x-ru)**2*np.exp(-1.0/(x-rl) - 1.0/(ru-x))
-        return out
+    def bump(r, A,R):
+        return (A * np.exp(-(r**2)/ R**2))
 
     A   = bumper[0]
     rl  = bumper[1]
     ru  = bumper[2]
-    u[:] += bump(r, A, rl, ru)   
+
+      
     ###########################################################################
 
     # set the (non zero) scalar field values
     v[:] = f_v(r)
+    v[:] += bump(r, A, 5) 
     
     # lapse and spatial metric
     lapse[:] = f_lapse(r)

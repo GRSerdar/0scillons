@@ -1,3 +1,5 @@
+# constraintsolver
+
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.interpolate import CubicSpline
@@ -216,7 +218,7 @@ class CTTKBHConstraintSolver :
         #self.Lap_psi_over_psi5 = -0.25 * ((self.MBH**2.0 + 16.0 * CC * self.MBH * self.R**3.0 
         #                                  + 4.0 * CC * self.R**4.0 * (3.0 - 2.0 * CC * self.R**2.0)) 
         #                                  / ((self.MBH + self.R - CC * self.R**3.0)**4.0))
-
+        
         if self.MBH == 0.0:
             H0  = np.sqrt(np.mean(self.rho) / 3.0)    # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
             print("H0: ", H0)
@@ -253,6 +255,42 @@ class CTTKBHConstraintSolver :
         #self.Q0 = self.dWrdr0 + 2.0 * self.Wr0 / self.R      
         
         self.background_set = True
+
+    # Extra funciton in the case of reading in tabulated stable oscillon ID
+    def set_oscillaton_background(self, psi_on_R):
+        """
+        Use a given conformal factor psi_on_R (sampled on self.R)
+        as the background instead of the BH background.
+        This is for oscillaton-based initial data.
+        """
+
+        # Set psi and the corresponding metric components
+        self.psi = psi_on_R
+        self.grr = self.psi**4.0 * self.hrr
+        self.gtt = self.psi**4.0 * self.htt
+        self.gpp = self.psi**4.0 * self.hpp
+
+        # Compute Lap(psi)/psi^5 in flat-space spherical coordinates
+        # Lap psi = d2psi/dr2 + (2/r) dpsi/dr
+        cs_psi    = CubicSpline(self.R, self.psi)
+        dpsi_dr   = cs_psi(self.R, 1)
+        d2psi_dr2 = cs_psi(self.R, 2)
+
+        Lap_psi = d2psi_dr2 + 2.0/self.R * dpsi_dr
+        self.Lap_psi_over_psi5 = Lap_psi / (self.psi**5.0)
+
+        self.Lap_psi_over_psi5 = Lap_psi / (self.psi**5.0)
+
+        # Use oscillaton as geometric background: start from time-symmetric guess
+        self.K0     = np.zeros_like(self.R)   # stationary-ish initial guess
+        self.Wr0    = np.zeros_like(self.R)
+        self.dWrdr0 = np.zeros_like(self.R)
+        self.Q0     = self.dWrdr0 + 2.0 * self.Wr0 / self.R
+
+        self.is_oscillaton   = True
+        
+        self.background_set = True
+
         
     def dydr_for_Wr(self, r_here, y, dKdr, psi) :
         """Returns the gradient dy/dr for the Mom Constraint"""

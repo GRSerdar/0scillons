@@ -1,3 +1,5 @@
+#MGID
+
 """
 Set the initial conditions for all the variables for an isotropic Schwarzschild BH.
 
@@ -5,6 +7,7 @@ See further details in https://github.com/GRChombo/engrenage/wiki/Running-the-bl
 """
 
 import numpy as np
+from scipy.interpolate import interp1d, CubicSpline
 
 from core.grid import *
 from bssn.bssnstatevariables import *
@@ -16,7 +19,7 @@ from matter.scalarmatter_MG import *
 from initialdata.constraintsolver import *
 from bssn.bssnvars import BSSNVars
 
-def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R) :
+def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R_bump, scalar_mu) :
     
     assert grid.NUM_VARS == 14, "NUM_VARS not correct for bssn + scalar field"
     
@@ -43,10 +46,85 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     ) = initial_state
 
     #################################################################################
-    # Modified Gravity Changes
+    # Oscillon initial data Katy:
+
+    #Importing tabulated initial data from Katy
+    grr0_data   = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/grr0.csv")
+    lapse0_data = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/lapse0.csv")
+    v0_data     = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/v0.csv")
+
+    length      = np.size(grr0_data)
+
+    # Make data symmetric in R (negative + positive)
+    grr0_data   = np.concatenate((np.flip(grr0_data),   grr0_data[1:length]))
+    lapse0_data = np.concatenate((np.flip(lapse0_data), lapse0_data[1:length]))
+    v0_data     = np.concatenate((np.flip(v0_data),     v0_data[1:length]))
+
+    # Areal-radius grid used by the oscillaton data
+    dR = 0.01
+    R  = np.linspace(-dR*(length-1), dR*(length-1), num=(length*2-1))
+
+    # (Optional sanity check: dR < dr)
+    assert dR < grid.min_dr, "dr must be >= dR of oscillaton data; use fewer grid points if needed."
+
+    # Interpolating functions
+    f_grr   = interp1d(R, grr0_data,   kind="cubic", fill_value="extrapolate")
+    f_lapse = interp1d(R, lapse0_data, kind="cubic", fill_value="extrapolate")
+    f_v     = interp1d(R, v0_data,     kind="cubic", fill_value="extrapolate")
+
+    # Evaluate on the Engrenage grid radius r
+    grr_profile   = f_grr(r)
+    lapse_profile = f_lapse(r)
+    v_profile     = f_v(r)
+
+    #################################################################################
+    # PERTURBATION ON THE OSCILLON: 
+
+    u[:] = 0.0
+    v[:] = v_profile
+
+    # Optional: add a Gaussian bump on top of the oscillaton profile
+    def bump2(r, A, Rbump):
+        return A * np.exp(-(r**2) / Rbump**2)
+
+    v[:]  += bump2(r, bump_amplitude, R_bump)
+
+    #################################################################################
+    # Work out metric variables (same as in oscillon id file):
+
+    # lapse and spatial metric
+    lapse[:] = f_lapse(r)
+    grr = f_grr(r)
+    gtt_over_r2 = 1.0
+    gpp_over_r2sintheta = gtt_over_r2
+    phys_gamma_over_r4sin2theta = grr * gtt_over_r2 * gpp_over_r2sintheta
+
+    # Work out the rescaled quantities
+    # Note sign error in Baumgarte eqn (2), conformal factor
+    phi[:] = 1.0/12.0 * np.log(phys_gamma_over_r4sin2theta)
+    em4phi = np.exp(-4.0*phi)
+    hrr[:] = em4phi * grr - 1.0
+    htt[:] = em4phi * gtt_over_r2 - 1.0
+    hpp[:] = em4phi * gpp_over_r2sintheta - 1.0
+
+    # We also calculate psi for the oscillon, so we can feed this into the
+    # id solver that includes the MG corrections
+    psi_osc_r = np.exp(phi)    
     
+    # overwrite inner cells using parity under r -> - r
+    grid.fill_inner_boundary(initial_state)
+
+    #################################################################################
+    # Modified Gravity Changes
+
+    GM = 0
+    scalar_mass = scalar_mu
+    
+    # we set this to zero (we don't want an exotic spatial distribution of our initial scalar field)
+    dudr = np.zeros_like(r)
+
     # we set lapse earlier, to not make MG variables blow up (initially it is zero)
-    lapse.fill(1.0)
+    #lapse.fill(1.0)
 
     # Extra objects needed for the matter variables in modified gravity
     unflattened_state = initial_state.reshape(grid.NUM_VARS, -1)
@@ -58,59 +136,20 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # Not sure yet if I will need these
     bssn_vars = BSSNVars(N)
     bssn_vars.set_bssn_vars(unflattened_state)
-    #################################################################################
-
-
-    # Set BH length scale, initial scalar data
-    GM = 0.0
-    scalar_mass = 1.0
-    
-    # Set scalar field values
-    # scalar_matter = ScalarMatter(scalar_mass)
-    
-    
-    #Currently remove this initial u
-    Rbubble = 10.0
-    Abubble = 0 *  0.5 * np.sqrt(2.0) # Makes the initial H_0 = 1.0 in code units in the blob
-    #Abubble = 0
-    #u[:] = Abubble * (1.0 - np.tanh(r - Rbubble))
-    
-    # We add a scalar bump for u 
-    def bump(r, A, rl, ru):
-        out = np.zeros_like(r)
-        mask = (r > rl) & (r < ru)
-        x = r[mask]
-        out[mask] = A*(x-rl)**2*(x-ru)**2*np.exp(-1.0/(x-rl) - 1.0/(ru-x))
-        return out
-
-    def bump2(r,A,R):
-        return (A * np.exp(-(r**2)/ R**2))
-    
-    #bumper = (bump_amplitude, 6, 14)
-    bumper = (bump_amplitude, 20, 20+R)
-    A   = bumper[0]
-    rl  = bumper[1]
-    ru  = bumper[2]
-
-    # We bump the conjugate momenta of the scalar field (now at r=0)
-    u[:] = 0
-    #v[:] += bump(r, A, rl, ru) 
-    v[:] += bump2(r, A, R) 
-
-
-    dudr = Abubble / np.cosh(r - Rbubble) / np.cosh(r - Rbubble)
-
-
-    #################################################################################
-    # Modified Gravity Changes
 
     # Solve constraints
     #inflation_initial_data = CTTKBHConstraintSolver(r, GM, scalar_mass)
     inflation_initial_data = CTTKBHConstraintSolver(grid, GM, scalar_mass, parameters)
     
-    # The matter variables are called after
-    #inflation_initial_data.set_matter_source(u, v, dudr)
+    ################ OSCILLON ########################
+    # Interpolate psi_osc from evolution grid r to solver grid R
+    cs_psi      = CubicSpline(r, psi_osc_r)
+    psi_osc_R   = cs_psi(inflation_initial_data.R)
     
+    # We add this to take into account the "curvature" caused by the oscillon id we import
+    inflation_initial_data.set_oscillaton_background(psi_osc_R)
+    ################ OSCILLON ########################
+
     # setting the matter variables 
     scalar_matter.set_matter_vars(unflattened_state, bssn_vars, grid)
 
@@ -118,6 +157,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     inflation_initial_data.set_matter_source(u, v, dudr, d1,d2 ,scalar_matter, bssn_vars, background, grid)
     
     psi4, K[:], arr[:], att[:], app[:] = inflation_initial_data.get_evolution_vars()  
+    
     #################################################################################
     # set non zero metric values
     grr = psi4
