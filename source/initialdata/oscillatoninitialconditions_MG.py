@@ -56,16 +56,22 @@ def get_initial_state(grid: Grid, background, bumper) :
         return (A * np.exp(-(r**2)/ R**2))
 
     A   = bumper[0]
-    rl  = bumper[1]
-    ru  = bumper[2]
+    R_width = bumper[1]
 
-      
     ###########################################################################
 
     # set the (non zero) scalar field values
     v[:] = f_v(r)
-    v[:] += bump(r, A, 5) 
+    v[:] += -bump(r, A, R_width) 
+
+    """
+    H0  = np.sqrt(np.sqrt((v**2) / 6.0) )   # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
+    print("H0: ", H0)
+    K_FLRW  = -3.0 * H0                                 
     
+    K = K_FLRW 
+    """
+
     # lapse and spatial metric
     lapse[:] = f_lapse(r)
     grr = f_grr(r)

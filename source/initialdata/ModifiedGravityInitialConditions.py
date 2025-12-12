@@ -16,7 +16,7 @@ from matter.scalarmatter_MG import *
 from initialdata.constraintsolver import *
 from bssn.bssnvars import BSSNVars
 
-def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R) :
+def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R, scalar_m) :
     
     assert grid.NUM_VARS == 14, "NUM_VARS not correct for bssn + scalar field"
     
@@ -63,43 +63,32 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
 
     # Set BH length scale, initial scalar data
     GM = 0.0
-    scalar_mass = 1.0
+    scalar_mass = scalar_m
     
     # Set scalar field values
     # scalar_matter = ScalarMatter(scalar_mass)
     
-    
-    #Currently remove this initial u
-    Rbubble = 10.0
-    Abubble = 0 *  0.5 * np.sqrt(2.0) # Makes the initial H_0 = 1.0 in code units in the blob
-    #Abubble = 0
-    #u[:] = Abubble * (1.0 - np.tanh(r - Rbubble))
-    
     # We add a scalar bump for u 
+    """
+    #   Old bump function
     def bump(r, A, rl, ru):
         out = np.zeros_like(r)
         mask = (r > rl) & (r < ru)
         x = r[mask]
         out[mask] = A*(x-rl)**2*(x-ru)**2*np.exp(-1.0/(x-rl) - 1.0/(ru-x))
         return out
+    """
 
+    # This bump is centered at r=0
     def bump2(r,A,R):
         return (A * np.exp(-(r**2)/ R**2))
-    
-    #bumper = (bump_amplitude, 6, 14)
-    bumper = (bump_amplitude, 20, 20+R)
-    A   = bumper[0]
-    rl  = bumper[1]
-    ru  = bumper[2]
 
     # We bump the conjugate momenta of the scalar field (now at r=0)
-    u[:] = 0
-    #v[:] += bump(r, A, rl, ru) 
-    v[:] += bump2(r, A, R) 
+    # The start value of the scalar field is at the end of inflation
+    u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
+    #v[:] += bump2(r, bump_amplitude, R) 
 
-
-    dudr = Abubble / np.cosh(r - Rbubble) / np.cosh(r - Rbubble)
-
+    dudr = np.zeros_like(r)
 
     #################################################################################
     # Modified Gravity Changes
@@ -108,9 +97,6 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     #inflation_initial_data = CTTKBHConstraintSolver(r, GM, scalar_mass)
     inflation_initial_data = CTTKBHConstraintSolver(grid, GM, scalar_mass, parameters)
     
-    # The matter variables are called after
-    #inflation_initial_data.set_matter_source(u, v, dudr)
-    
     # setting the matter variables 
     scalar_matter.set_matter_vars(unflattened_state, bssn_vars, grid)
 
@@ -118,6 +104,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     inflation_initial_data.set_matter_source(u, v, dudr, d1,d2 ,scalar_matter, bssn_vars, background, grid)
     
     psi4, K[:], arr[:], att[:], app[:] = inflation_initial_data.get_evolution_vars()  
+
     #################################################################################
     # set non zero metric values
     grr = psi4

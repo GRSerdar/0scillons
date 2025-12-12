@@ -87,7 +87,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     def bump2(r, A, Rbump):
         return A * np.exp(-(r**2) / Rbump**2)
 
-    v[:]  += bump2(r, bump_amplitude, R_bump)
+    v[:]  +=  -bump2(r, bump_amplitude, R_bump) #Minus sign or plus sign depending on the initial profile of the bump
 
     #################################################################################
     # Work out metric variables (same as in oscillon id file):
@@ -122,9 +122,6 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     
     # we set this to zero (we don't want an exotic spatial distribution of our initial scalar field)
     dudr = np.zeros_like(r)
-
-    # we set lapse earlier, to not make MG variables blow up (initially it is zero)
-    #lapse.fill(1.0)
 
     # Extra objects needed for the matter variables in modified gravity
     unflattened_state = initial_state.reshape(grid.NUM_VARS, -1)

@@ -14,7 +14,7 @@ from bssn.tensoralgebra import *
 def get_constraints_diagnostic(states_over_time, t, grid: Grid, background, matter, params) :
     
     # Modified Gravity parameters
-    lambda_GB, a, b, chi0 = params
+    lambda_GB, a, b, chi0, coupling= params
 
     # For readability
     r = grid.r
@@ -48,7 +48,7 @@ def get_constraints_diagnostic(states_over_time, t, grid: Grid, background, matt
         gb = GBVars(N)
         # Comment out next two lines to achieve standard GR
         get_gb_core(gb, r, bssn_vars, d1, d2, grid, background, lambda_GB, chi0)
-        get_esgb_br_terms(gb, r, matter, bssn_vars, d1, d2, grid, background, lambda_GB, chi0)
+        get_esgb_br_terms(gb, r, matter, bssn_vars, d1, d2, grid, background, lambda_GB, chi0, coupling)
         
         # Calculate some useful quantities
         ########################################################

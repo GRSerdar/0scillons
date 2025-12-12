@@ -87,8 +87,7 @@ class CTTKBHConstraintSolver :
         
         # Solve for the constraint vars
         error = 10.0
-        #tol = 1.0e-2
-        tol = 1.0e-4
+        tol = 1.0e-2
         max_iter = 50
         iteration = 0
         while ((error > tol) and (iteration < max_iter)):
@@ -223,7 +222,7 @@ class CTTKBHConstraintSolver :
             H0  = np.sqrt(np.mean(self.rho) / 3.0)    # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
             print("H0: ", H0)
             K_FLRW  = -3.0 * H0                                 
-            self.K0 = K_FLRW * np.ones_like(self.R)
+            self.K0 = K_FLRW * np.ones_like(self.R) 
         
         self.matter_source_set = True        
         
@@ -259,9 +258,7 @@ class CTTKBHConstraintSolver :
     # Extra funciton in the case of reading in tabulated stable oscillon ID
     def set_oscillaton_background(self, psi_on_R):
         """
-        Use a given conformal factor psi_on_R (sampled on self.R)
-        as the background instead of the BH background.
-        This is for oscillaton-based initial data.
+        We use a given conformal factor psi_on_R as the background instead of the BH background.
         """
 
         # Set psi and the corresponding metric components
@@ -281,8 +278,8 @@ class CTTKBHConstraintSolver :
 
         self.Lap_psi_over_psi5 = Lap_psi / (self.psi**5.0)
 
-        # Use oscillaton as geometric background: start from time-symmetric guess
-        self.K0     = np.zeros_like(self.R)   # stationary-ish initial guess
+        # Same as bh example
+        self.K0     = np.zeros_like(self.R)   
         self.Wr0    = np.zeros_like(self.R)
         self.dWrdr0 = np.zeros_like(self.R)
         self.Q0     = self.dWrdr0 + 2.0 * self.Wr0 / self.R
