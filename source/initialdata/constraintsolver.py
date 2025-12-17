@@ -16,7 +16,7 @@ from bssn.tensoralgebra import *
 class CTTKBHConstraintSolver :
     """Solves the constraints for a BH plus scalar configuration."""
 
-    def __init__(self, grid, a_MBH = 0.0, a_scalar_mass=1.0, parameters=(0.05, 0.2, 0.4, 0.15, 'quadratic')) :
+    def __init__(self, grid, a_MBH, a_scalar_mass, parameters=(0.05, 0.2, 0.4, 0.15, 'quadratic')) :
 
         # Extra variables defined to include modified gravity terms
         a_r = grid.r
@@ -217,13 +217,14 @@ class CTTKBHConstraintSolver :
         #self.Lap_psi_over_psi5 = -0.25 * ((self.MBH**2.0 + 16.0 * CC * self.MBH * self.R**3.0 
         #                                  + 4.0 * CC * self.R**4.0 * (3.0 - 2.0 * CC * self.R**2.0)) 
         #                                  / ((self.MBH + self.R - CC * self.R**3.0)**4.0))
-        
+        """
+        # We don't really need this
         if self.MBH == 0.0:
             H0  = np.sqrt(np.mean(self.rho) / 3.0)    # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
             print("H0: ", H0)
             K_FLRW  = -3.0 * H0                                 
             self.K0 = K_FLRW * np.ones_like(self.R) 
-        
+        """
         self.matter_source_set = True        
         
     # Set BH BG solution

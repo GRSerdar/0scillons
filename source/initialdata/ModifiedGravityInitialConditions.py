@@ -85,8 +85,13 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
 
     # We bump the conjugate momenta of the scalar field (now at r=0)
     # The start value of the scalar field is at the end of inflation
-    u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
-    #v[:] += bump2(r, bump_amplitude, R) 
+    
+    #u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
+
+    #Trying to mimick what katy has in her paper
+    u[:] = - 1.3 * 10**(-1)
+    v[:] = 8 * 10**(-7)
+    #u[:] += bump2(r, bump_amplitude, R)
 
     dudr = np.zeros_like(r)
 

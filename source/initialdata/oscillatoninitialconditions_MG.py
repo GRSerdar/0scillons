@@ -53,6 +53,8 @@ def get_initial_state(grid: Grid, background, bumper) :
     # Oscillon modification
     
     def bump(r, A,R):
+        r = np.asarray(r, dtype=float)
+        R = float(R)
         return (A * np.exp(-(r**2)/ R**2))
 
     A   = bumper[0]
@@ -62,7 +64,7 @@ def get_initial_state(grid: Grid, background, bumper) :
 
     # set the (non zero) scalar field values
     v[:] = f_v(r)
-    v[:] += -bump(r, A, R_width) 
+    u[:] += bump(r, A, R_width) 
 
     """
     H0  = np.sqrt(np.sqrt((v**2) / 6.0) )   # We are working in 8piG = 1, but if not, that factor could be implemented here i think.
