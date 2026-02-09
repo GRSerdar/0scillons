@@ -12,7 +12,7 @@ from bssn.ModifiedGravity import *
 class ScalarMatter :
     """Represents the matter that sources the Einstein equation."""
 
-    def __init__(self, a_scalar_mu=1.0) :
+    def __init__(self, a_scalar_mu) :
         self.scalar_mu = a_scalar_mu # this is an inverse length scale related to the scalar compton wavelength
         
         # Details for the matter state variables

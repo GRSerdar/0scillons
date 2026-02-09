@@ -16,7 +16,7 @@ from matter.scalarmatter_MG import *
 from initialdata.constraintsolver import *
 from bssn.bssnvars import BSSNVars
 
-def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R, scalar_m) :
+def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_amplitude, R, scalar_m, u_val, v_val) :
     
     assert grid.NUM_VARS == 14, "NUM_VARS not correct for bssn + scalar field"
     
@@ -63,7 +63,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
 
     # Set BH length scale, initial scalar data
     GM = 0.0
-    scalar_mass = scalar_m
+    #scalar_mass = scalar_m
     
     # Set scalar field values
     # scalar_matter = ScalarMatter(scalar_mass)
@@ -84,15 +84,21 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
         return (A * np.exp(-(r**2)/ R**2))
 
     # We bump the conjugate momenta of the scalar field (now at r=0)
-    # The start value of the scalar field is at the end of inflation
-    
     #u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
-
-    #Trying to mimick what katy has in her paper
+    """
+    #Initial Conditions for 
     u[:] = - 1.3 * 10**(-1)
     v[:] = 8 * 10**(-7)
-    #u[:] += bump2(r, bump_amplitude, R)
+    """
 
+    u[:] = u_val
+    v[:] = v_val
+    
+    # Perturbation
+    u[:] += bump2(r, bump_amplitude, R)
+
+    # Why am I doing this and is this not messing up solving the constraints ? ? ? ? ? ? 
+    # In the case of adding a gaussian bump, should i take derivative of gaussian wrt r ? 
     dudr = np.zeros_like(r)
 
     #################################################################################
@@ -100,7 +106,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
 
     # Solve constraints
     #inflation_initial_data = CTTKBHConstraintSolver(r, GM, scalar_mass)
-    inflation_initial_data = CTTKBHConstraintSolver(grid, GM, scalar_mass, parameters)
+    inflation_initial_data = CTTKBHConstraintSolver(grid, GM, scalar_m, parameters)
     
     # setting the matter variables 
     scalar_matter.set_matter_vars(unflattened_state, bssn_vars, grid)
@@ -108,7 +114,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # setting the matter source 
     inflation_initial_data.set_matter_source(u, v, dudr, d1,d2 ,scalar_matter, bssn_vars, background, grid)
     
-    psi4, K[:], arr[:], att[:], app[:] = inflation_initial_data.get_evolution_vars()  
+    psi4, K[:], arr[:], att[:], app[:] = inflation_initial_data.get_evolution_vars() 
 
     #################################################################################
     # set non zero metric values
@@ -126,7 +132,6 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     htt[:] = em4phi * gtt_over_r2 - 1.0
     hpp[:] = em4phi * gpp_over_r2sintheta - 1.0 
 
-    
     # overwrite inner cells using parity under r -> - r
     grid.fill_inner_boundary(initial_state)
     
