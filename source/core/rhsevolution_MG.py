@@ -151,7 +151,7 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     eta = 1.0
     # we are not using b_U but we keep it in to not break anything
     bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
-
+    """
     bssn_rhs.shift_U += (0.75 * bssn_vars.lambda_U - eta * bssn_vars.shift_U
                                -((a)/(1+a)) * (0.75 * bssn_vars.lambda_U
                                                + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
@@ -159,6 +159,15 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     # We changed to K - <K> gauge for cosmology
     bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
     bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+    """
+    
+    # Trying new gauge conditions for cosmology
+    # Geometric slicing condition (First derivative should be zero and alpha = 0)
+    bssn_rhs.lapse =  np.zeros_like(r)
+
+    # Gamma driver should also be changed
+    bssn_rhs.shift_U = np.zeros_like(r)[:,np.newaxis]
+    
     
     ########################################################################################################
     # ADVECTION

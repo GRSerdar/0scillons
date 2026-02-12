@@ -48,6 +48,9 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # we set lapse earlier, to not make MG variables blow up (initially it is zero)
     lapse.fill(1.0)
 
+    # Shift to zero, to implement geodesic slicing
+    shiftr.fill(0.0)
+
     # Extra objects needed for the matter variables in modified gravity
     unflattened_state = initial_state.reshape(grid.NUM_VARS, -1)
 
@@ -82,6 +85,10 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # This bump is centered at r=0
     def bump2(r,A,R):
         return (A * np.exp(-(r**2)/ R**2))
+    
+    # Analytic derivative of the bump
+    def dbump2_dr(r, A, R):
+        return A * np.exp(-(r**2)/R**2) * (-2*r/R**2)
 
     # We bump the conjugate momenta of the scalar field (now at r=0)
     #u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
@@ -97,9 +104,8 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # Perturbation
     u[:] += bump2(r, bump_amplitude, R)
 
-    # Why am I doing this and is this not messing up solving the constraints ? ? ? ? ? ? 
-    # In the case of adding a gaussian bump, should i take derivative of gaussian wrt r ? 
-    dudr = np.zeros_like(r)
+    #dudr = np.zeros_like(r)
+    dudr = dbump2_dr(r, bump_amplitude, R)
 
     #################################################################################
     # Modified Gravity Changes
