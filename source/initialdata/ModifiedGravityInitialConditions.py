@@ -82,6 +82,67 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
         return out
     """
 
+    # Trying out different bumps
+    L = 150.0
+    nmin = 5
+    nmax = 19
+
+    def j0(x):
+        out = np.ones_like(x)
+        mask = x != 0
+        out[mask] = np.sin(x[mask]) / x[mask]
+        return out
+
+    def dj0_dr(r, k):
+        x = k * r
+        out = np.zeros_like(r)
+        mask = r != 0
+        out[mask] = k * (np.cos(x[mask]) / x[mask] - np.sin(x[mask]) / x[mask]**2)
+        return out
+    
+    def bump2(r, A, seed=0):
+        rng = np.random.default_rng(seed)
+        delta = np.zeros_like(r)
+
+        dk = np.pi / L
+
+        for n in range(nmin, nmax + 1):
+            k = n * np.pi / L
+
+            phase = rng.uniform(0.0, 2*np.pi)
+            coeff = rng.normal(0.0, 1.0)
+
+            delta += coeff * j0(k * r) * np.cos(phase)
+
+        # Normalize to RMS = A
+        rms = np.sqrt(np.mean(delta**2))
+        if rms > 0:
+            delta *= (A / rms)
+
+        return delta
+    
+    def dbump2_dr(r, A, seed=0):
+        rng = np.random.default_rng(seed)
+        delta = np.zeros_like(r)
+
+        dk = np.pi / L
+
+        for n in range(nmin, nmax + 1):
+            k = n * np.pi / L
+
+            phase = rng.uniform(0.0, 2*np.pi)
+            coeff = rng.normal(0.0, 1.0)
+
+            delta += coeff * dj0_dr(r, k) * np.cos(phase)
+
+        # Match normalization with bump2
+        rms = np.sqrt(np.mean(bump2(r, 1.0, seed)**2))
+        if rms > 0:
+            delta *= (A / rms)
+
+        return delta
+
+    """
     # This bump is centered at r=0
     def bump2(r,A,R):
         return (A * np.exp(-(r**2)/ R**2))
@@ -89,7 +150,7 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # Analytic derivative of the bump
     def dbump2_dr(r, A, R):
         return A * np.exp(-(r**2)/R**2) * (-2*r/R**2)
-
+    """
     # We bump the conjugate momenta of the scalar field (now at r=0)
     #u[:] = -0.27 + bump2(r, bump_amplitude, R)  # adding the bump makes us come closer to the minimum of the potential!
     """
@@ -102,10 +163,10 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     v[:] = v_val
     
     # Perturbation
-    u[:] += bump2(r, bump_amplitude, R)
+    u[:] += bump2(r, bump_amplitude)
 
     #dudr = np.zeros_like(r)
-    dudr = dbump2_dr(r, bump_amplitude, R)
+    dudr = dbump2_dr(r, bump_amplitude)
 
     #################################################################################
     # Modified Gravity Changes
