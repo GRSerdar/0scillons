@@ -1,0 +1,828 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\tcbuselibrary{breakable}
+\newtcolorbox{keybox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!50!black,
+  fonttitle=\bfseries,
+  title={#1},
+  breakable
+}
+\newtcolorbox{warnbox}[1][]{
+  colback=red!5!white,
+  colframe=red!50!black,
+  fonttitle=\bfseries,
+  title={#1},
+  breakable
+}
+
+\newcommand{\Mpl}{M_{\mathrm{pl}}}
+\newcommand{\avg}[1]{\langle #1 \rangle}
+
+\title{Oscillon Formation via Tachyonic Resonance\\[6pt]
+\large A Detailed Analysis for the $\alpha$-Attractor T-Model\\
+with Application to Numerical Simulations}
+\author{Working Notes}
+\date{\today}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{The Scalar Field Potential}
+\label{sec:potential}
+
+We work with the $\alpha$-attractor T-model potential
+\cite{Kallosh:2013hoa,Amin:2019ums}:
+\begin{equation}
+\label{eq:potential}
+  V(\varphi) = \frac{1}{2}\,m^{2}\mu^{2}
+  \Bigl(1 - e^{\,\varphi/\mu}\Bigr)^{2}\,,
+\end{equation}
+where $m$ is the scalar field mass (setting the oscillation frequency) and
+$\mu$ is the self-interaction scale that controls the nonlinearity of the
+potential.
+In our code units we set $8\pi G = 1$ and $m = 1$.
+The code parameter \texttt{selfinteraction} $= \mu = 0.06$.
+
+\subsection{Key properties}
+
+\begin{enumerate}
+  \item \textbf{Minimum:} $V(0) = 0$, $V'(0) = 0$.
+  \item \textbf{Mass at the minimum:}
+    \begin{equation}
+      V''(0) = m^{2}\bigl(2 - 1\bigr) = m^{2} = 1\,,
+    \end{equation}
+    confirming the oscillation frequency $\omega \approx m = 1$.
+  \item \textbf{Plateau:} For $\varphi \to -\infty$,
+    $V \to \tfrac{1}{2}\,m^{2}\mu^{2}$.
+    With our parameters: $V_{\mathrm{plat}} = \tfrac{1}{2}(0.06)^{2}
+    = 1.8\times 10^{-3}$.
+  \item \textbf{Steep wall:} For $\varphi > 0$,
+    $V$ grows exponentially as $\sim e^{2\varphi/\mu}$.
+\end{enumerate}
+
+The second derivative of the potential is:
+\begin{equation}
+\label{eq:Vpp}
+\boxed{
+  V''(\varphi) = m^{2}\,e^{\,\varphi/\mu}
+  \Bigl(2\,e^{\,\varphi/\mu} - 1\Bigr)\,.
+}
+\end{equation}
+This is positive (stable oscillation) near $\varphi = 0$, but becomes
+\emph{negative} (tachyonic) for sufficiently negative $\varphi$.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{The Tachyonic Region}
+\label{sec:tachyonic}
+
+\subsection{Finding the threshold}
+
+The tachyonic region is the set of field values where $V''(\varphi) < 0$.
+From Eq.~\eqref{eq:Vpp}:
+\begin{equation}
+  V''(\varphi) < 0
+  \quad\Longleftrightarrow\quad
+  2\,e^{\,\varphi/\mu} - 1 < 0
+  \quad\Longleftrightarrow\quad
+  e^{\,\varphi/\mu} < \tfrac{1}{2}
+  \quad\Longleftrightarrow\quad
+  \varphi < -\mu\ln 2\,.
+\end{equation}
+
+\begin{keybox}[Tachyonic threshold]
+\begin{equation}
+\label{eq:tach_threshold}
+  \varphi_{\mathrm{tach}} = -\mu \ln 2\,.
+\end{equation}
+With $\mu = 0.06$:
+$\quad\varphi_{\mathrm{tach}} = -0.06 \times 0.693 = -0.0416$.
+
+The field must oscillate past this value (to more negative $\varphi$) for
+tachyonic instability to occur.
+\end{keybox}
+
+\subsection{Maximum tachyonic strength}
+
+We want the extremum of $V''$ in the tachyonic region.
+Differentiating $V''$:
+\begin{equation}
+  \frac{dV''}{d\varphi}
+  = \frac{m^{2}}{\mu}\,e^{\,\varphi/\mu}
+    \Bigl(4\,e^{\,\varphi/\mu} - 1\Bigr)\,.
+\end{equation}
+Setting this to zero (excluding the trivial $e^{\varphi/\mu}=0$ limit):
+\begin{equation}
+  4\,e^{\,\varphi/\mu} = 1
+  \quad\Longrightarrow\quad
+  \varphi_{\min}^{V''} = -\mu\ln 4 = -2\mu\ln 2\,.
+\end{equation}
+Substituting back:
+\begin{equation}
+\label{eq:Vpp_min}
+\boxed{
+  V''_{\min}
+  = m^{2}\cdot\tfrac{1}{4}\bigl(\tfrac{1}{2} - 1\bigr)
+  = -\,\frac{m^{2}}{8}\,.
+}
+\end{equation}
+For $m = 1$: $V''_{\min} = -0.125$.
+
+\subsection{Tachyonic band in Fourier space}
+
+A homogeneous perturbation
+$\delta\varphi \propto e^{i\mathbf{k}\cdot\mathbf{x}}$ obeys
+(in the flat-space, instantaneous approximation):
+\begin{equation}
+  \ddot{\delta\varphi}_{k}
+  + \bigl(k^{2} + V''(\bar{\varphi}(t))\bigr)\,\delta\varphi_{k} = 0\,.
+\end{equation}
+When $V''(\bar\varphi) < 0$, modes with
+\begin{equation}
+\label{eq:tach_band}
+\boxed{
+  k^{2} < \bigl|V''(\bar\varphi)\bigr|
+}
+\end{equation}
+experience \emph{exponential growth} (the effective mass-squared is negative).
+The most dangerous instant is when $|V''|$ is maximised, giving a
+maximum band width:
+\begin{equation}
+  k_{\max} = \sqrt{|V''_{\min}|} = \frac{m}{2\sqrt{2}}
+  \approx 0.354\,m\,.
+\end{equation}
+
+\begin{keybox}[Tachyonic band]
+For the $\alpha$-attractor T-model with $\mu = 0.06$ and $m = 1$, modes
+with comoving wavenumber
+\begin{equation}
+  k \lesssim 0.35
+\end{equation}
+(i.e.\ wavelength $\lambda \gtrsim 18$) can be tachyonically amplified.
+The most unstable mode is $k = 0$.
+\end{keybox}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{The Background Oscillation}
+\label{sec:background}
+
+\subsection{Energy budget and turning points}
+
+In an FLRW universe with Hubble rate $H$, the homogeneous scalar field
+obeys:
+\begin{equation}
+  \ddot{\bar\varphi} + 3H\dot{\bar\varphi} + V'(\bar\varphi) = 0\,.
+\end{equation}
+For $H \ll m$, the field oscillates quasi-periodically around $\varphi = 0$
+with slowly decaying amplitude.
+At any instant the ``energy'' is:
+\begin{equation}
+  E = \tfrac{1}{2}\dot{\bar\varphi}^{2} + V(\bar\varphi)\,.
+\end{equation}
+The turning points (where $\dot{\bar\varphi} = 0$) satisfy
+$V(\varphi_{\mathrm{turn}}) = E$.
+
+\subsection{Your simulation parameters}
+
+With the initial conditions in the notebook:
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Parameter & Symbol & Value \\
+  \midrule
+  Initial field & $\bar\varphi_0$ & $-0.0864$ \\
+  Initial velocity & $\dot{\bar\varphi}_0$ & $+0.0324$ \\
+  Self-interaction & $\mu$ & $0.06$ \\
+  Scalar mass & $m$ & $1$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Computing the energy:}
+\begin{align}
+  E &= \tfrac{1}{2}(0.0324)^{2}
+     + \tfrac{1}{2}(0.06)^{2}
+       \bigl(1 - e^{-0.0864/0.06}\bigr)^{2}
+  \notag\\[4pt]
+    &= 5.25\times 10^{-4}
+     + 1.8\times 10^{-3}\times(1 - e^{-1.44})^{2}
+  \notag\\[4pt]
+    &= 5.25\times 10^{-4}
+     + 1.8\times 10^{-3}\times(0.763)^{2}
+  \notag\\[4pt]
+    &= 5.25\times 10^{-4} + 1.05\times 10^{-3}
+     \approx 1.57\times 10^{-3}\,.
+\end{align}
+
+\paragraph{Negative turning point:}
+Setting $V(\varphi_{-}) = E$:
+\begin{align}
+  \tfrac{1}{2}(0.06)^{2}\bigl(1 - e^{\varphi_{-}/0.06}\bigr)^{2}
+  &= 1.57\times 10^{-3}
+  \notag\\[3pt]
+  \bigl|1 - e^{\varphi_{-}/0.06}\bigr| &= 0.935
+  \notag\\[3pt]
+  e^{\varphi_{-}/0.06} &= 0.065
+  \notag\\[3pt]
+  \varphi_{-} &= 0.06\ln(0.065) = -0.164\,.
+\end{align}
+
+\paragraph{Positive turning point:}
+\begin{equation}
+  e^{\varphi_{+}/0.06} = 1.935
+  \quad\Longrightarrow\quad
+  \varphi_{+} = 0.06\ln(1.935) = +0.040\,.
+\end{equation}
+
+\begin{keybox}[Oscillation range]
+The background field oscillates between
+$\varphi_{-} \approx -0.164$ and $\varphi_{+} \approx +0.040$.
+
+Since $\varphi_{-} = -0.164 < \varphi_{\mathrm{tach}} = -0.042$,
+the field \textbf{does} enter the tachyonic region each oscillation.
+
+The ratio $|\varphi_{-}|/\mu = 2.73$ tells us the field explores
+$\sim 2.7$ self-interaction lengths on the negative side.
+\end{keybox}
+
+\subsection{Evaluating $V''$ at the turning point}
+
+At $\varphi_{-} = -0.164$:
+\begin{align}
+  V''(-0.164) &= e^{-0.164/0.06}\bigl(2\,e^{-0.164/0.06} - 1\bigr)
+  \notag\\[3pt]
+  &= 0.065\times(0.130 - 1)
+  = 0.065\times(-0.870)
+  = -0.057\,.
+\end{align}
+This is weaker than the theoretical maximum $|V''_{\min}| = 0.125$
+because the field doesn't reach $\varphi = -2\mu\ln 2 = -0.083$
+with enough ``room'' to spare.
+Actually it does pass through $-0.083$; the maximum $|V''|$
+experienced is the full $0.125$.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Hubble Damping and the Resonance Window}
+\label{sec:hubble}
+
+This is the critical section: even though the tachyonic instability exists,
+it only operates while the background oscillation amplitude is above the
+tachyonic threshold.
+Hubble friction steadily reduces the amplitude.
+
+\subsection{Hubble rate}
+
+From the Friedmann equation (with $8\pi G = 1$):
+\begin{equation}
+  3H^{2} = \rho
+  \quad\Longrightarrow\quad
+  H = \sqrt{\frac{\rho}{3}}
+  \approx \sqrt{\frac{1.57\times 10^{-3}}{3}}
+  \approx 0.023\,.
+\end{equation}
+
+The ratio $H/m = 0.023 \ll 1$ confirms we are in the
+``many oscillations per Hubble time'' regime, so the WKB /
+adiabatic treatment is valid.
+
+\subsection{Amplitude decay}
+
+For a massive scalar field oscillating in an expanding universe,
+the oscillation-averaged amplitude decays as
+\cite{Turner:1983he,Amin:2010dc}:
+\begin{equation}
+\label{eq:amp_decay}
+  |\bar\varphi_{\mathrm{amp}}(t)|
+  \propto a(t)^{-3/2}\,,
+\end{equation}
+where $a(t)$ is the scale factor.
+This holds when $H \ll m$ (rapid oscillation limit)
+and the equation of state averages to $w = 0$ (matter-like).
+
+\subsection{Time until the resonance shuts off}
+
+The tachyonic instability requires
+$|\bar\varphi_{\mathrm{amp}}| > |\varphi_{\mathrm{tach}}| = 0.042$.
+Starting from $|\bar\varphi_{\mathrm{amp}}(0)| = 0.164$:
+\begin{align}
+  0.164\times a^{-3/2} &= 0.042
+  \notag\\[3pt]
+  a^{3/2} &= \frac{0.164}{0.042} = 3.90
+  \notag\\[3pt]
+  a &= 3.90^{2/3} = 2.48\,.
+\end{align}
+The number of $e$-folds:
+\begin{equation}
+  N = \ln a = \ln 2.48 = 0.91\,.
+\end{equation}
+The coordinate time (assuming $a \approx e^{Ht}$ during
+matter domination\footnote{
+  More precisely, $a \propto t^{2/3}$ during matter domination,
+  but for $N \lesssim 1$, $a \approx e^{Ht}$ is a reasonable
+  approximation for estimating the time scale.
+}):
+\begin{equation}
+\label{eq:t_shutoff}
+\boxed{
+  \Delta t_{\mathrm{res}} \approx \frac{N}{H}
+  = \frac{0.91}{0.023} \approx 40\,.
+}
+\end{equation}
+
+\begin{warnbox}[Resonance window]
+The tachyonic resonance is only active for the first
+$\Delta t \approx 40$ code time units, corresponding to roughly
+\begin{equation}
+  n_{\mathrm{osc}} = \frac{\Delta t}{T}
+  = \frac{40}{2\pi} \approx 6 \text{ oscillations}\,.
+\end{equation}
+After this, the background amplitude drops below the tachyonic threshold
+and the instability switches off permanently.
+Any perturbation growth must happen within this window.
+\end{warnbox}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Growth Rate of Perturbations}
+\label{sec:growth}
+
+\subsection{Instantaneous growth rate}
+
+During the tachyonic phase (when $V'' < 0$ and $k^{2} < |V''|$),
+a Fourier mode $\delta\varphi_{k}$ grows as
+\cite{Amin:2011hj,Lozanov:2017hjm}:
+\begin{equation}
+  \delta\varphi_{k} \propto
+  \exp\!\left(\int_{\mathrm{tach}}
+  \sqrt{|V''(\bar\varphi(t'))| - k^{2}}\;dt'\right).
+\end{equation}
+
+\subsection{Floquet exponent estimate}
+
+For each oscillation period, the field spends a fraction $f$ of the
+time in the tachyonic region.
+Let $\langle\sqrt{|V''|}\rangle_{\mathrm{tach}}$ be the time-averaged
+value of $\sqrt{|V''|}$ during the tachyonic phase.
+Then the Floquet exponent per oscillation is approximately:
+\begin{equation}
+  \mu_{F} \approx f \cdot T \cdot
+  \langle\sqrt{|V''|}\rangle_{\mathrm{tach}}\,,
+\end{equation}
+where $T = 2\pi/m \approx 6.28$.
+
+\paragraph{Estimating $f$:}
+The tachyonic region is $\varphi < -0.042$.
+The full swing on the negative side goes from $0$ to $-0.164$.
+The fraction of the negative half-swing that is tachyonic is
+$(0.164 - 0.042)/0.164 \approx 0.74$.
+The field spends roughly half the period on the negative side,
+so $f \approx 0.5 \times 0.74 \approx 0.37$.
+However, the field moves faster near $\varphi = 0$ and slower near the
+turning points, so the \emph{time} fraction is larger than the
+spatial fraction.
+A reasonable estimate is $f \approx 0.30$--$0.40$.
+
+\paragraph{Estimating $\langle\sqrt{|V''|}\rangle$:}
+$|V''|$ varies from $0$ at the threshold to $\sim 0.125$ at $\varphi_{\min}^{V''}$.
+A geometric mean gives
+$\langle\sqrt{|V''|}\rangle \approx \sqrt{0.125/2} \approx 0.25$.
+
+\paragraph{Result:}
+\begin{equation}
+\label{eq:floquet}
+  \mu_{F} \approx 0.35 \times 6.28 \times 0.25 \approx 0.55\,.
+\end{equation}
+Growth per oscillation:
+\begin{equation}
+  G_{\mathrm{osc}} = e^{\mu_{F}} \approx e^{0.55} \approx 1.73\,.
+\end{equation}
+
+\begin{keybox}[Total amplification]
+Over $n_{\mathrm{osc}} \approx 6$ oscillations:
+\begin{equation}
+\label{eq:total_growth}
+  G_{\mathrm{total}} = G_{\mathrm{osc}}^{\,n_{\mathrm{osc}}}
+  = 1.73^{6} \approx 27\,.
+\end{equation}
+The perturbation amplitude grows by a factor of $\sim 27$ before
+the resonance shuts off.
+\end{keybox}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Will an Oscillon Form? A Criterion}
+\label{sec:criterion}
+
+\subsection{The nonlinearity condition}
+
+For an oscillon to form, the perturbation must reach
+\emph{nonlinear} amplitudes, meaning $\delta\varphi \sim \mu$
+(the self-interaction scale) or equivalently $\delta\rho/\bar\rho \sim 1$
+\cite{Amin:2011hj,Amin:2019ums}.
+
+\begin{keybox}[Oscillon formation criterion]
+An oscillon forms if:
+\begin{equation}
+\label{eq:criterion}
+\boxed{
+  A_{\mathrm{pert}} \times G_{\mathrm{total}} \gtrsim \mu\,,
+}
+\end{equation}
+where $A_{\mathrm{pert}}$ is the initial perturbation amplitude,
+$G_{\mathrm{total}}$ is the total growth factor during the resonance
+window, and $\mu$ is the self-interaction scale.
+\end{keybox}
+
+\subsection{Applying to your simulation}
+
+With your current parameters:
+\begin{equation}
+  A_{\mathrm{pert}} \times G_{\mathrm{total}}
+  = 10^{-3} \times 27
+  = 0.027\,.
+\end{equation}
+Comparing to $\mu = 0.06$:
+\begin{equation}
+  0.027 < 0.06 = \mu\,.
+\end{equation}
+The perturbation does \emph{not} reach the nonlinearity scale.
+It falls short by about a factor of 2.
+
+\subsection{What would work?}
+
+Rearranging Eq.~\eqref{eq:criterion}:
+\begin{equation}
+  A_{\mathrm{pert}} \gtrsim \frac{\mu}{G_{\mathrm{total}}}
+  = \frac{0.06}{27} \approx 2.2\times 10^{-3}\,.
+\end{equation}
+
+So an initial perturbation amplitude of
+$A \gtrsim 3\times 10^{-3}$ should be sufficient.
+However, this estimate is rough; accounting for Hubble dilution of the
+perturbation itself and imperfect overlap with the resonance band,
+a safer choice is:
+\begin{equation}
+  A_{\mathrm{pert}} \sim 10^{-2}\text{--}10^{-1}\,.
+\end{equation}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{The Role of the Perturbation Width}
+\label{sec:width}
+
+\subsection{Fourier content of a Gaussian bump}
+
+A Gaussian perturbation in real space,
+\begin{equation}
+  \delta\varphi(r) = A\,\exp\!\Bigl(-\frac{r^{2}}{2R^{2}}\Bigr),
+\end{equation}
+has a Fourier transform (in 3D) that peaks at $k = 0$ with power
+falling off as:
+\begin{equation}
+  |\widetilde{\delta\varphi}(k)|^{2} \propto
+  \exp\!\bigl(-k^{2}R^{2}\bigr)\,.
+\end{equation}
+
+The fraction of power at wavenumber $k$ relative to the peak
+is $\exp(-k^{2}R^{2})$.
+
+\subsection{Overlap with the tachyonic band}
+
+The tachyonic band extends to $k_{\max} \approx 0.35$.
+For different choices of $R$:
+
+\begin{center}
+\begin{tabular}{cccc}
+  \toprule
+  $R$ & $k_{\max}R$ & Power at $k_{\max}$: $e^{-k_{\max}^2 R^2}$
+      & Assessment \\
+  \midrule
+  $1.0$ & $0.35$ & $0.88$ & Good \\
+  $1.5$ & $0.53$ & $0.76$ & Reasonable \\
+  $3.0$ & $1.05$ & $0.33$ & Still OK \\
+  $5.0$ & $1.75$ & $0.047$ & Poor overlap \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{keybox}[Optimal perturbation width]
+For the tachyonic band with $k_{\max} \approx 0.35$:
+\begin{itemize}
+  \item $R \lesssim 3$ keeps substantial power in the resonance band.
+  \item The \emph{optimal} choice is $R \sim 1/k_{\max} \approx 3$,
+    which balances having power at the most unstable modes ($k \approx 0$)
+    with resolving the perturbation on the grid.
+  \item Your choice $R = 1.5$ is fine; most of the Fourier power
+    is within the tachyonic band.
+\end{itemize}
+
+However, note the distinction between the tachyonic band and
+\textbf{parametric resonance} bands (Sec.~\ref{sec:parametric}),
+which operate at higher $k$.
+\end{keybox}
+
+\subsection{The supervisor's comment: ``order 1 wavelength''}
+
+Your supervisor said perturbations of ``order $1/m$ wavelength''
+are subject to resonance.
+This refers to \emph{parametric} (Mathieu-type) resonance, not
+tachyonic resonance.
+For parametric resonance, the instability bands are centred at
+$k \approx n\omega/2$ ($n = 1, 2, \ldots$), giving the first band at
+$k \sim m/2 = 0.5$ (wavelength $\lambda = 2\pi/k \approx 12.6$).
+
+For a Gaussian with $R = 1.5$, the power at $k = 0.5$ is
+$e^{-0.25 \times 2.25} = e^{-0.56} \approx 0.57$ --- decent overlap.
+
+The key point: \textbf{both} tachyonic and parametric resonance
+operate, but they dominate at different $k$ ranges:
+\begin{itemize}
+  \item \textbf{Tachyonic:} $k \lesssim 0.35$
+    (broader in real space, $\lambda \gtrsim 18$).
+  \item \textbf{Parametric:} $k \sim 0.5$
+    (narrower in real space, $\lambda \sim 12$).
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Parametric Resonance (Floquet Theory)}
+\label{sec:parametric}
+
+When $V''(\bar\varphi(t))$ oscillates periodically, even if it never goes
+negative, modes can still grow via \emph{parametric resonance}
+(the Mathieu instability).
+This is relevant because even after the background amplitude drops below
+$\varphi_{\mathrm{tach}}$, parametric resonance can continue to operate.
+
+The perturbation equation can be written in Mathieu form:
+\begin{equation}
+  \frac{d^{2}\delta\varphi_{k}}{dz^{2}}
+  + \bigl(A_{k} - 2q\cos 2z\bigr)\,\delta\varphi_{k} = 0\,,
+\end{equation}
+where $z = mt/2$ and:
+\begin{equation}
+  A_{k} = \frac{k^{2} + m^{2}}{(m/2)^{2}} = 4\frac{k^{2}+m^{2}}{m^{2}}\,,
+  \qquad
+  q \propto \frac{\varphi_{\mathrm{amp}}}{\mu}\,.
+\end{equation}
+Instability bands occur near $A_{k} = n^{2}$ ($n = 1, 2, \ldots$):
+\begin{itemize}
+  \item $n = 1$: $k \approx 0$ (overlaps with tachyonic band).
+  \item $n = 2$: $k \approx m$ (the ``order 1 wavelength'' modes).
+\end{itemize}
+
+The parametric growth rate is generally weaker than the tachyonic
+rate but persists longer (it doesn't require the field to reach the
+tachyonic region).
+See \cite{Kofman:1997yn,Amin:2011hj} for details.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Putting It All Together: When Can Oscillons Form?}
+\label{sec:summary}
+
+\subsection{The three requirements}
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+  \item \textbf{The field must access the tachyonic region:}
+    $|\bar\varphi_{\mathrm{amp}}| > |\varphi_{\mathrm{tach}}| = \mu\ln 2$.
+    This requires sufficient initial energy:
+    \begin{equation}
+      E > V(\varphi_{\mathrm{tach}})
+      = \tfrac{1}{2}m^{2}\mu^{2}\bigl(1 - \tfrac{1}{2}\bigr)^{2}
+      = \tfrac{m^{2}\mu^{2}}{8}\,.
+    \end{equation}
+
+  \item \textbf{Enough oscillations in the resonance window:}
+    Hubble damping reduces the amplitude as $a^{-3/2}$.
+    The number of oscillations before shutdown is:
+    \begin{equation}
+      n_{\mathrm{osc}} \approx
+      \frac{m}{2\pi H}\ln\!\left(
+      \frac{|\bar\varphi_{\mathrm{amp},0}|}{|\varphi_{\mathrm{tach}}|}
+      \right)^{2/3}.
+    \end{equation}
+    More oscillations $\Rightarrow$ more growth.
+    This favours:
+    \begin{itemize}
+      \item Large initial amplitude $|\bar\varphi_{\mathrm{amp},0}|/\mu$.
+      \item Small $H/m$ ratio.
+    \end{itemize}
+
+  \item \textbf{Sufficient initial perturbation amplitude:}
+    \begin{equation}
+      A_{\mathrm{pert}} \gtrsim
+      \frac{\mu}{G_{\mathrm{osc}}^{\,n_{\mathrm{osc}}}}\,.
+    \end{equation}
+\end{enumerate}
+
+\subsection{Parameter study for your simulation}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccl}
+  \toprule
+  \textbf{Knob} & \textbf{Current} & \textbf{Suggested}
+  & \textbf{Effect} \\
+  \midrule
+  $A_{\mathrm{pert}}$ & $10^{-3}$ & $10^{-2}$--$10^{-1}$
+  & Gives head start; $A\times G > \mu$ \\
+  $R$ & $1.5$ & $1.5$--$3.0$
+  & More power in tachyonic band \\
+  $u_{\mathrm{val}}$ & $-0.0864$ & $-0.15$ to $-0.3$
+  & Larger oscillation, more tachyonic cycles \\
+  $v_{\mathrm{val}}$ & $+0.0324$ & scale with energy
+  & Consistent with larger amplitude \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{warnbox}[Most impactful change]
+The \textbf{single most impactful change} is increasing
+$A_{\mathrm{pert}}$ from $10^{-3}$ to $\sim 10^{-2}$.
+With the current background ($G_{\mathrm{total}} \approx 27$):
+\begin{equation}
+  10^{-2} \times 27 = 0.27 \gg \mu = 0.06 \quad\checkmark
+\end{equation}
+This should allow oscillon formation.
+
+The second most impactful change is using a larger initial
+background amplitude $|u_{\mathrm{val}}|$, which increases
+$n_{\mathrm{osc}}$ and therefore $G_{\mathrm{total}}$
+exponentially.
+For example, doubling $|u_{\mathrm{val}}|$ to $0.17$ gives roughly
+$n_{\mathrm{osc}} \approx 10$, so $G_{\mathrm{total}} \approx 1.73^{10}
+\approx 240$, making even $A = 10^{-4}$ sufficient.
+\end{warnbox}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Diagnostic Checklist for Oscillon Formation}
+\label{sec:diagnostics}
+
+Once you run a simulation, here is how to determine whether an oscillon
+has formed:
+
+\begin{enumerate}[label=\textbf{D\arabic*.}]
+  \item \textbf{Density contrast $\delta_{c}(t)$:}
+    $\delta_{c} = \rho_{c}/\bar\rho - 1$ should grow during the
+    resonance window ($t \lesssim 40$), then \emph{saturate and
+    oscillate} rather than decay.
+    A successful oscillon has $\delta_{c} \gg 1$ and growing
+    as $\propto a^{3}$ (since $\bar\rho \propto a^{-3}$ while
+    $\rho_{c}$ stays roughly constant).
+
+  \item \textbf{Central density $\rho_{c}(t)$:}
+    Should stabilise to an approximately constant value
+    (modulated by field oscillations at frequency $\sim m$)
+    rather than decaying as $a^{-3}$.
+
+  \item \textbf{Density profile $\rho(r)$:}
+    A clear localised peak at $r = 0$ with radius
+    $R_{\mathrm{osc}} \sim \pi/m \approx 3$.
+
+  \item \textbf{Compactness $C = GM_{\mathrm{osc}}/R_{\mathrm{osc}}$:}
+    Should be non-zero and stable.
+    Typical values $C \sim 10^{-3}$--$10^{-1}$.
+
+  \item \textbf{Scalar field at centre $\varphi(r=0, t)$:}
+    Should show sustained large-amplitude oscillations
+    even as the background decays.
+    Plotting $\varphi(0,t) - \bar\varphi(t)$ should reveal
+    a growing or sustained perturbation.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Quick Reference Formulas}
+\label{sec:formulas}
+
+For the $\alpha$-attractor T-model
+$V = \frac{1}{2}m^{2}\mu^{2}(1 - e^{\varphi/\mu})^{2}$:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{ll}
+  \toprule
+  \textbf{Quantity} & \textbf{Formula} \\
+  \midrule
+  Tachyonic threshold
+  & $\varphi_{\mathrm{tach}} = -\mu\ln 2$ \\
+  Max $|V''|$
+  & $m^{2}/8$, at $\varphi = -2\mu\ln 2$ \\
+  Tachyonic band
+  & $k < m/(2\sqrt{2})$ \\
+  Oscillation period
+  & $T = 2\pi/m$ \\
+  Amplitude decay
+  & $|\varphi_{\mathrm{amp}}| \propto a^{-3/2}$ \\
+  Hubble rate
+  & $H = \sqrt{\rho/3}$ \quad(with $8\pi G = 1$) \\
+  Resonance window
+  & $\Delta t \approx \frac{2}{3H}
+    \ln\bigl(|\varphi_{\mathrm{amp},0}|/|\varphi_{\mathrm{tach}}|\bigr)$ \\
+  Resonance oscillations
+  & $n_{\mathrm{osc}} = m\Delta t/(2\pi)$ \\
+  Growth per oscillation
+  & $G_{\mathrm{osc}} \approx e^{f T \langle\sqrt{|V''|}\rangle}
+    \approx 1.7$ \\
+  Oscillon criterion
+  & $A_{\mathrm{pert}} \times G_{\mathrm{osc}}^{n_{\mathrm{osc}}}
+    \gtrsim \mu$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Summary of the Problem and Fix}
+\label{sec:fix}
+
+\textbf{Why oscillons did not form in your simulation:}
+
+\begin{enumerate}
+  \item The tachyonic resonance window is limited to $\sim 6$ oscillations
+    ($\Delta t \approx 40$) before Hubble damping reduces the background
+    amplitude below the tachyonic threshold.
+  \item The total growth factor is $G \approx 27$.
+  \item Starting from $A = 10^{-3}$, the perturbation only reaches
+    $\sim 0.027$, which is below the nonlinearity scale $\mu = 0.06$.
+  \item After $t = 40$, the resonance stops and the perturbation
+    (now sub-threshold for nonlinear collapse) simply dilutes with
+    the expansion.
+  \item Your simulation ran to $t = 400$, but the resonance was already
+    dead by $t \approx 40$.
+    The remaining 360 time units showed no further growth.
+\end{enumerate}
+
+\textbf{Fix:}
+Increase \texttt{perturbation\_amplitude} to $10^{-2}$ or larger.
+This ensures $A \times G \approx 0.27 > \mu = 0.06$, allowing the
+perturbation to reach nonlinear amplitudes within the resonance window.
+
+% ══════════════════════════════════════════════════════════════════════════════
+
+\begin{thebibliography}{99}
+
+\bibitem{Kallosh:2013hoa}
+  R.~Kallosh, A.~Linde, and D.~Roest,
+  ``Superconformal Inflationary $\alpha$-Attractors,''
+  JHEP \textbf{1311}, 198 (2013),
+  \href{https://arxiv.org/abs/1311.0472}{arXiv:1311.0472}.
+
+\bibitem{Amin:2011hj}
+  M.~A.~Amin, R.~Easther, H.~Finkel, R.~Flauger, and M.~P.~Hertzberg,
+  ``Oscillons After Inflation,''
+  Phys.\ Rev.\ Lett.\ \textbf{108}, 241302 (2012),
+  \href{https://arxiv.org/abs/1106.3335}{arXiv:1106.3335}.
+
+\bibitem{Amin:2019ums}
+  M.~A.~Amin,
+  ``Inflaton fragmentation: Emergence of pseudo-stable inflaton lumps
+  (oscillons) after inflation,''
+  \href{https://arxiv.org/abs/1006.3075}{arXiv:1006.3075}.
+
+\bibitem{Lozanov:2017hjm}
+  K.~D.~Lozanov and M.~A.~Amin,
+  ``Self-resonance after inflation: oscillons, transients, and
+  radiation domination,''
+  Phys.\ Rev.\ D \textbf{97}, 023533 (2018),
+  \href{https://arxiv.org/abs/1710.06851}{arXiv:1710.06851}.
+
+\bibitem{Kofman:1997yn}
+  L.~Kofman, A.~Linde, and A.~A.~Starobinsky,
+  ``Towards the theory of reheating after inflation,''
+  Phys.\ Rev.\ D \textbf{56}, 3258 (1997),
+  \href{https://arxiv.org/abs/hep-ph/9704452}{arXiv:hep-ph/9704452}.
+
+\bibitem{Turner:1983he}
+  M.~S.~Turner,
+  ``Coherent scalar field oscillations in an expanding universe,''
+  Phys.\ Rev.\ D \textbf{28}, 1243 (1983).
+
+\bibitem{Amin:2010dc}
+  M.~A.~Amin and D.~Shiber,
+  ``Formation, gravitational clustering, and interactions of
+  nonrelativistic solitons in an expanding universe,''
+  \href{https://arxiv.org/abs/1210.4979}{arXiv:1210.4979}.
+
+\bibitem{Clough:2023oscillon}
+  K.~Clough, E.~A.~Lim, et al.,
+  ``Oscillon formation in full general relativity,''
+  (2023),
+  \href{https://arxiv.org/abs/2304.01673}{arXiv:2304.01673}.
+
+\end{thebibliography}
+
+\end{document}

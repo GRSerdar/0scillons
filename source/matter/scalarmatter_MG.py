@@ -45,12 +45,12 @@ class ScalarMatter :
 
     # The scalar potential
     def V_of_u(self, u) :
-        selfinteraction = 0.08
+        selfinteraction = 0.06
         return 0.5 * (self.scalar_mu * self.scalar_mu * selfinteraction * selfinteraction)*(1-np.exp(u/selfinteraction))**2
     
     # Derivative of scalar potential
     def dVdu(self, u) :
-        selfinteraction = 0.08
+        selfinteraction = 0.06
         return self.scalar_mu * self.scalar_mu * selfinteraction * np.exp(u/selfinteraction) * (np.exp(u/selfinteraction) - 1)
     
     # Test
