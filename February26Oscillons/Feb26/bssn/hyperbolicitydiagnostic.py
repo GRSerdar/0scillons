@@ -18,8 +18,6 @@
 #   ratio_41(r,t)— diagnostic ratio from Eq. (41); >1 ⇒ NER likely
 #   ratio_36(r,t)— diagnostic ratio from Eq. (36); >1 ⇒ NER (sufficient)
 #   theta_plus   — outgoing null expansion  (θ₊ = 0 locates the AH)
-#
-# Usage mirrors constraintsdiagnostic.py / oscillondiagnostic.py.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,23 +31,6 @@ _trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
 
 # Small floor to avoid division by zero
 _EPS = 1e-30
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-#  Coupling-function derivatives  f(u)  for each coupling type
-# ──────────────────────────────────────────────────────────────────────────────
-
-def _coupling_derivs(u, coupling):
-    """Return (f'(u), f''(u)) for the GB coupling function f."""
-    if coupling == "linear":
-        return np.ones_like(u), np.zeros_like(u)
-    elif coupling == "quadratic":
-        beta = 250.0
-        eb = np.exp(-beta * u * u)
-        fp  = 2.0 * u * eb
-        fpp = 2.0 * eb * (1.0 - 2.0 * beta * u * u)
-        return fp, fpp
-    return np.ones_like(u), np.zeros_like(u)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -140,47 +121,60 @@ def get_hyperbolicity_diagnostic(states_over_time, t, grid, background,
             get_esgb_br_terms(gb, r_coord, matter, bssn, d1, d2, grid,
                               background, lambda_GB, chi0, coupling)
 
-        # ── Metric helpers ──────────────────────────────────────────
+        # ── Physical metric via tensor algebra helpers ─────────────
         em4phi = np.exp(-4.0 * bssn.phi)
         e4phi  = 1.0 / em4phi
         e2phi  = np.exp(2.0 * bssn.phi)
+        K      = bssn.K
 
-        h_tt = bssn.h_LL[:, i_t, i_t]
-        h_rr = bssn.h_LL[:, i_r, i_r]
-        a_tt = bssn.a_LL[:, i_t, i_t]
-        K    = bssn.K
+        bar_gamma_LL = get_bar_gamma_LL(r_coord, bssn.h_LL, background)
+        bar_gamma_UU = get_bar_gamma_UU(r_coord, bssn.h_LL, background)
+        bar_A_LL     = get_bar_A_LL(r_coord, bssn, background)
 
-        gamma_rr     = e4phi * (1.0 + h_rr)
-        gamma_rr_inv = em4phi / (1.0 + h_rr)
+        gamma_UU = em4phi[:, np.newaxis, np.newaxis] * bar_gamma_UU
+        gamma_rr_inv = gamma_UU[:, i_r, i_r]
 
-        # ── Areal radius  R² = γ_θθ = e^{4φ} r²(1+h_tt) ──────────
-        one_p_htt = np.maximum(1.0 + h_tt, _EPS)
-        sqrt_1ph  = np.sqrt(one_p_htt)
-        R = r_coord * e2phi * sqrt_1ph
+        # ── Areal radius  R² = γ_θθ = e^{4φ} γ̄_θθ  ──────────────
+        bar_gamma_tt = np.maximum(bar_gamma_LL[:, i_t, i_t], _EPS)
+        sqrt_bar_gamma_tt = np.sqrt(bar_gamma_tt)
+        R = e2phi * sqrt_bar_gamma_tt
 
         safe_R = np.maximum(np.abs(R), _EPS)
 
-        # ∂_r R
-        dphi_dr  = d1.phi[:, i_r]
-        dh_tt_dr = d1.h_LL[:, i_t, i_t, i_r]
-        dR_dr = (e2phi * sqrt_1ph
-                 * (1.0 + 2.0 * r_coord * dphi_dr
-                    + r_coord * dh_tt_dr / (2.0 * one_p_htt)))
+        # ∂_r R  via  ∂_r γ̄_θθ  (properly accounting for scaling_matrix)
+        dphi_dr = d1.phi[:, i_r]
+        d_bar_gamma_tt_dr = (background.d1_hat_gamma_LL[:, i_r, i_t, i_t]
+                             + background.d1_scaling_matrix[:, i_t, i_t, i_r]
+                               * bssn.h_LL[:, i_t, i_t]
+                             + background.scaling_matrix[:, i_t, i_t]
+                               * d1.h_LL[:, i_t, i_t, i_r])
+        dR_dr = e2phi * (2.0 * dphi_dr * sqrt_bar_gamma_tt
+                         + d_bar_gamma_tt_dr
+                           / (2.0 * sqrt_bar_gamma_tt))
 
         # ── Extrinsic curvature  K_θθ ──────────────────────────────
-        # K_ij = e^{4φ}(Ā_ij + γ̄_ij K/3)
-        K_tt = e4phi * r_coord**2 * (a_tt + one_p_htt * K / 3.0)
+        # K_ij = e^{4φ}(Ā_ij + (1/3) γ̄_ij K)
+        bar_A_tt = bar_A_LL[:, i_t, i_t]
+        K_tt = e4phi * (bar_A_tt + one_third * bar_gamma_tt * K)
 
         # ── Misner-Sharp mass  [Eq. 18] ────────────────────────────
         # σ = γ^rr (∂_r R)² − (K_θθ/R)² − 1
         sigma = gamma_rr_inv * dR_dr**2 - (K_tt / safe_R)**2 - 1.0
         M = -safe_R * sigma / 2.0
 
-        # ── Coupling function derivatives ──────────────────────────
+        # ── Coupling function derivatives from ModifiedGravity ─────
+        #  gb.d1Lambdadu  = S · ℓ² · f'(u)
+        #  gb.d2Lambdadduu = S · ℓ² · f''(u)
+        #  where S = sigmoid smoothing.  Factor out S·ℓ² to get bare f', f''.
         u_field  = matter.u
         v_field  = matter.v
         d1_u_r   = matter.d1_u[:, i_r]
-        fp, fpp  = _coupling_derivs(u_field, coupling)
+
+        chi = em4phi
+        S   = 1.0 / (1.0 + np.exp(-100.0 * (chi - chi0)))
+        S_ell = np.maximum(S * ell_sq, _EPS)
+        fp  = gb.d1Lambdadu / S_ell
+        fpp = gb.d2Lambdadduu / S_ell
 
         # ── μ = R − 8 ℓ² (D^c R)(D_c f)   [Eq. 19] ──────────────
         #  (D^c R)(D_c f) = −(n·∂R)(n·∂f) + γ^rr (∂_r R)(∂_r f)
