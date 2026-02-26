@@ -12,8 +12,9 @@ from bssn.ModifiedGravity import *
 class ScalarMatter :
     """Represents the matter that sources the Einstein equation."""
 
-    def __init__(self, a_scalar_mu) :
+    def __init__(self, a_scalar_mu, selfinteraction=0.08) :
         self.scalar_mu = a_scalar_mu # this is an inverse length scale related to the scalar compton wavelength
+        self.selfinteraction = selfinteraction
         
         # Details for the matter state variables
         self.NUM_MATTER_VARS = 2
@@ -45,13 +46,13 @@ class ScalarMatter :
 
     # The scalar potential
     def V_of_u(self, u) :
-        selfinteraction = 0.08
-        return 0.5 * (self.scalar_mu * self.scalar_mu * selfinteraction * selfinteraction)*(1-np.exp(u/selfinteraction))**2
+        f = self.selfinteraction
+        return 0.5 * (self.scalar_mu * self.scalar_mu * f * f)*(1-np.exp(u/f))**2
     
     # Derivative of scalar potential
     def dVdu(self, u) :
-        selfinteraction = 0.08
-        return self.scalar_mu * self.scalar_mu * selfinteraction * np.exp(u/selfinteraction) * (np.exp(u/selfinteraction) - 1)
+        f = self.selfinteraction
+        return self.scalar_mu * self.scalar_mu * f * np.exp(u/f) * (np.exp(u/f) - 1)
     
     # Test
     ###########################################################################################################################

@@ -158,7 +158,10 @@ class Grid:
         # Freezes the value of the field over all outer ghost cells.
         for var in (12, 13):
             if var in indices:
-                state[var, -NUM_GHOSTS:] = state[var, -NUM_GHOSTS-1]
+                # Added slope to the extrapolation
+                # To get to previous bndry condition just put slope to zero!!! (or use commented code above)
+                slope = (state[var, idx] - state[var, idx - 1]) / (self.r[idx] - self.r[idx - 1])
+                state[var, -NUM_GHOSTS:] = state[var, idx] + slope * (self.r[-NUM_GHOSTS:] - self.r[idx])
 
 
 

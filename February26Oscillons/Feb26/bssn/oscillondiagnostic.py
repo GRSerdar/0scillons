@@ -365,7 +365,7 @@ def plot_paper_diagnostics(osc, use_scale_factor=True):
     xlabel = r"$\ln(a)$" if use_scale_factor else r"$t \; [1/m]$"
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 9))
-    fig.suptitle("Oscillon diagnostics  (arXiv:2304.01673 style)", fontsize=14)
+    fig.suptitle("Oscillon diagnostics", fontsize=14)
 
     # ── Panel 1:  delta_c ─────────────────────────────────────────────────
     ax = axes[0, 0]
