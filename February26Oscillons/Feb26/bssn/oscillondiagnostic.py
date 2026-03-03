@@ -31,7 +31,10 @@ from bssn.bssnvars import BSSNVars
 from bssn.ModifiedGravity import GBVars, get_gb_core, get_esgb_br_terms
 
 
-_trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
+if hasattr(np, "trapezoid"):
+    _trapz = np.trapezoid
+else:
+    _trapz = np.trapz
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -200,6 +203,7 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
             vol[i]      = _trapz(dV_osc, rp_osc)
             radius[i]   = (3.0 * vol[i] / (4.0 * np.pi))**(1.0 / 3.0)
             if radius[i] > 0:
+                # We divide by 8pi, since we set G = 1/(8pi) in the code.
                 compact[i] = mass[i] / (8.0 * np.pi * radius[i])
 
         grid.fill_inner_boundary_single_variable(rho_all[i, :])
@@ -397,6 +401,7 @@ def plot_paper_diagnostics(osc, use_scale_factor=True):
     ax.set_xlabel(xlabel)
     ax.set_ylabel(r"$M$", color="b")
     ax_r.set_ylabel(r"$R$", color="g")
+    ax.set_xlim(1.5, 3.5)
     ax.set_title("Oscillon mass and radius")
     lines1, labels1 = ax.get_legend_handles_labels()
     lines2, labels2 = ax_r.get_legend_handles_labels()
@@ -409,6 +414,8 @@ def plot_paper_diagnostics(osc, use_scale_factor=True):
     ax.set_xlabel(xlabel)
     ax.set_ylabel(r"$\mathcal{C} = GM/R$")
     ax.set_title(r"Compactness  $\mathcal{C}$")
+    ax.set_ylim(0,5e-2)
+    ax.set_xlim(1.5, 3.5)
     ax.grid(True, alpha=0.3)
 
     fig.tight_layout(rect=[0, 0, 1, 0.96])

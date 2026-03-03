@@ -40,11 +40,20 @@ BSSN_PARITY = np.array(
         -1, -1, -1, 1]          # lambda^r, shift^r, b^r, lapse
 )
 
+"""
+OLD ASYMPTOTIC BEHAVIOUR
 # scaling at larger r as power of r, i.e. var ~ r^asymptotic_power + asymptotic_offset
 BSSN_ASYMP_POWER = np.array(
        [-1., -1., -1., -1.,     # phi, h
         -1., -2., -2., -2.,     # K, a
         -2., -1., -1., 0.]      # lambda^r, shift^r, b^r, lapse
+)
+"""
+# NEW ASYMPTOTIC BEHAVIOUR: constant at large r
+BSSN_ASYMP_POWER = np.array(
+       [0, 0, 0, 0,           # phi, h
+        0, 0, 0, 0,           # K, a
+        0, 0, 0, 0]           # lambda^r, shift^r, b^r, lapse  
 )
 
 BSSN_ASYMP_OFFSET = np.array(
