@@ -149,6 +149,8 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
 
     # Modified Harmonic Gauge is implemented
     # Option 1 
+    
+    # SAFE WORKING GAUGE
     eta = 1.0
     # we are not using b_U but we keep it in to not break anything
     bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
@@ -162,7 +164,24 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     # We changed to K - <K> gauge for cosmology
     bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
     bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+    
+    """
+    # New Gauge from Baumegarte paper
+    mu_old = 0.75
+    mu_new = (bssn_vars.lapse)*(bssn_vars.lapse)
+    eta = 1.0
+    # we are not using b_U but we keep it in to not break anything
+    bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
 
+    # ── Option 1: Modified Harmonic Gauge with Gamma driver ──
+    bssn_rhs.shift_U += (mu_new[:,np.newaxis] * bssn_vars.lambda_U - eta * bssn_vars.shift_U
+                               -((a)/(1+a)) * (mu_new[:,np.newaxis] * bssn_vars.lambda_U
+                                               + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
+
+    # We changed to K - <K> gauge for cosmology
+    bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+    bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+    """
 
     """
     # ── Option 2: Geometric slicing (frozen lapse and shift) ──
