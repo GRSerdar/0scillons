@@ -166,6 +166,7 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
     
     """
+    
     # New Gauge from Baumegarte paper
     mu_old = 0.75
     mu_new = (bssn_vars.lapse)*(bssn_vars.lapse)
