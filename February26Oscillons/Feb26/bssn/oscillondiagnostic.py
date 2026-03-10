@@ -29,6 +29,7 @@ from core.grid import *
 from bssn.tensoralgebra import *
 from bssn.bssnvars import BSSNVars
 from bssn.ModifiedGravity import GBVars, get_gb_core, get_esgb_br_terms
+from bssn.bssnrhs_MG import get_bssn_rhs
 
 
 if hasattr(np, "trapezoid"):
@@ -99,7 +100,9 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
     N = grid.num_points
     num_times = len(t) if np.ndim(t) > 0 else 1
 
-    rho_all    = np.zeros((num_times, N))
+    rho_all        = np.zeros((num_times, N))
+    bar_L_GB_all   = np.zeros((num_times, N))
+    full_L_GB_all  = np.zeros((num_times, N))
     delta_rho  = np.zeros((num_times, N))
     rho_c      = np.zeros(num_times)
     rho_bar    = np.zeros(num_times)
@@ -142,7 +145,16 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         emtensor = matter.get_emtensor(r, bssn_N, background, gb)
         rho = emtensor.rho #+ gb.rho_GB #you can remov this if mg terms are not
 
+        # ── Full L_GB via matrix solve (post-backreaction) ────────────
+        if lambda_GB != 0:
+            bssn_rhs_tmp = BSSNVars(N)
+            get_bssn_rhs(bssn_rhs_tmp, r, matter, bssn_N, d1, d2,
+                         grid, background, gb, (a_mg, b_mg), emtensor)
+            full_L_GB_all[i, :] = gb.full_L_GB
+
         rho_all[i, :] = rho
+        if lambda_GB != 0:
+            bar_L_GB_all[i, :] = gb.bar_L_GB
 
         # ── Conformal factor / metric quantities ────────────────────────
         phi    = bssn_N.phi
@@ -219,6 +231,8 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         "t"         : t,
         "r"         : r,
         "rho"       : rho_all,
+        "bar_L_GB"  : bar_L_GB_all,
+        "full_L_GB" : full_L_GB_all,
         "rho_c"     : rho_c,
         "rho_bar"   : rho_bar,
         "delta_c"   : delta_c,

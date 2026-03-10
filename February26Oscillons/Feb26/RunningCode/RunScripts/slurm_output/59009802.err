@@ -1,0 +1,12 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) cluster/genius/batch_long
+usage: run_oscillon.py [-h] --lambda_gb LAMBDA_GB
+                       [--selfinteraction SELFINTERACTION] [--a_mg A_MG]
+                       [--b_mg B_MG] [--chi0 CHI0] [--coupling COUPLING]
+                       [--perturbation PERTURBATION] [--width WIDTH] [--T T]
+                       [--num_points_t NUM_POINTS_T] [--r_max R_MAX]
+                       [--min_dr MIN_DR] [--max_dr MAX_DR] [--force]
+                       [--no-diagnostics]
+run_oscillon.py: error: argument --perturbation: expected one argument

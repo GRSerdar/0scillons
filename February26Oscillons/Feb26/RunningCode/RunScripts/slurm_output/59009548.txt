@@ -1,0 +1,48 @@
+SLURM_JOB_ID: 59009548
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: osc_lgb20_mu0.04
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i27n02
+SLURM_JOB_CPUS_PER_NODE: 2
+Date: Sat Mar  7 09:36:28 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59009548
+  Node      : r25i27n02
+  lambda_GB : 20
+  T         : 800
+  Started   : Sat Mar  7 09:36:41 CET 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 20.0
+  selfinteraction (mu) = 0.04
+  gauge (a, b)  = (0.2, 0.4)
+  perturbation  = -0.02,  width = 3
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.0625, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb20.0_mu0.04_a0.2_b0.4_amp-0.02_R3_dr0.0625
+======================================================================
+Grid: 216 points,  r in [-0.1559, 150.0]
+error is:  0.009595695226073253  after iter:  14
+
+Starting integration (T = 800.0) ...
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9992627  0.9992627  0.9992627  0.9992627  0.99926271]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.99926174 0.99926174 0.99926174 0.99926174 0.99926174]
+Integration finished in 0.15 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 39.6827 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 39.6827
+Saved solution: shape (50, 3024)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb20.0_mu0.04_a0.2_b0.4_amp-0.02_R3_dr0.0625
+Computing oscillon diagnostics ...
+  max compactness C = 1.200647e+00
+Done.
+
+Finished: Sat Mar  7 09:45:40 CET 2026

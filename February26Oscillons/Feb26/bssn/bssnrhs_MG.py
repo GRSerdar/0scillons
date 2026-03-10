@@ -278,11 +278,11 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
                  + 4*(d1Lambdadu* d1Lambdadu) * Trace_M * perp_L_GB)
     """
     # Calculating the full LGB, just to be able to print it and check when zero and when not:
-    full_LGB = (bar_L_GB 
-                + (ilapse * e4phi * 8 *  np.einsum("xia, xjb, xij, xab->x" ,gamma_UU, gamma_UU, M_LL ,background.scaling_matrix * dadt))
-                - (ilapse * four_thirds * Trace_M * dKdt))
+    #full_LGB = (bar_L_GB 
+    #          + (ilapse * e4phi * 8 *  np.einsum("xia, xjb, xij, xab->x" ,gamma_UU, gamma_UU, M_LL ,background.scaling_matrix * dadt))
+    #            - (ilapse * four_thirds * Trace_M * dKdt))
     
-    LGB.append(full_LGB)
+    #LGB.append(full_LGB)
     
 
     ####################################################################################################
@@ -385,14 +385,13 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     Z[:,3,0] = dvdt
 
     try:
-      dU = np.linalg.solve(M, Z)[...,0]  # usual solve
-    
+      dU = np.linalg.solve(M, Z)[...,0]
     except np.linalg.LinAlgError as e:
-      print("Matrix solve failed:", e)
+      print(f"Matrix solve failed: {e}")
       det = np.linalg.det(M)
-      print("Last 5 determinants before crash:")
+      print("Last 5 determinants before failure:")
       print(det[-5:])
-      raise  # re-raise so the crash message still propagates
+      dU = np.full_like(Z[..., 0], np.nan)
 
 
     A_LL = np.zeros((N,3,3))
@@ -406,6 +405,12 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     bssn_rhs.a_LL = background.inverse_scaling_matrix * A_LL
     bssn_rhs.K    = dU[:,2]
     dPidt         = dU[:,3] #* S # Multiply by sigma function here to turn it off inside of the AH.
+
+    # Full L_GB with post-solve perp terms
+    gb.full_L_GB[:] = (bar_L_GB
+        + ilapse * e4phi * 8 * np.einsum("xia, xjb, xij, xab->x",
+              gamma_UU, gamma_UU, M_LL, background.scaling_matrix * bssn_rhs.a_LL)
+        - ilapse * four_thirds * Trace_M * bssn_rhs.K)
     
     # MG case
     return (dudt, dPidt)

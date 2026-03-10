@@ -1,0 +1,21 @@
+SLURM_JOB_ID: 59012831
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: osc_lgb2_b0_a05
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n03
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Wed Mar 11 00:19:55 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59012831
+  Node      : r25i13n03
+  lambda_GB : 2
+  T         : 800
+  Started   : Wed Mar 11 00:20:09 CET 2026
+========================================================
+Data already exists at /data/leuven/384/vsc38419/oscillon_runs/lgb2.0_mu0.08_a0.2_b0.4_amp-0.05_R3_dr0.0625_quadratic_0, use --force to overwrite.
+Finished: Wed Mar 11 00:20:10 CET 2026

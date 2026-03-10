@@ -48,11 +48,15 @@ TABLE_I = {
 }
 
 
-def build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr):
-    return (
+def build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr,
+                  coupling="quadratic"):
+    tag = (
         f"lgb{lgb}_mu{selfinteraction}_a{a_mg}_b{b_mg}"
         f"_amp{perturbation}_R{width}_dr{min_dr}"
     )
+    if coupling != "quadratic":
+        tag += f"_{coupling}"
+    return tag
 
 
 def run_simulation(args):
@@ -83,8 +87,9 @@ def run_simulation(args):
     max_dr = args.max_dr
     lgb = args.lambda_gb
 
-    tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr)
-    data_dir = os.path.join(SCRIPT_DIR, "..", "DATA", tag)
+    tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr, coupling)
+    vsc_data = os.environ.get("VSC_DATA", os.path.join(SCRIPT_DIR, "..", "DATA"))
+    data_dir = os.path.join(vsc_data, "oscillon_runs", tag)
     os.makedirs(data_dir, exist_ok=True)
 
     sol_path = os.path.join(data_dir, "solution.npy")
@@ -134,13 +139,21 @@ def run_simulation(args):
         )
 
     wall_elapsed = time.time() - wall_start
+    crashed = not dense_sol.success
+    t_crash = float(dense_sol.t[-1]) if crashed else T
+
     print(f"Integration finished in {wall_elapsed / 3600:.2f} h  "
           f"(status: {dense_sol.message})")
 
-    if not dense_sol.success:
-        print(f"WARNING: solver reported failure — {dense_sol.message}")
+    if crashed:
+        print(f"WARNING: solver failed at t ≈ {t_crash:.4f} — {dense_sol.message}")
+        print(f"  Saving partial data up to t = {t_crash:.4f}")
 
     # ── Sample dense output at requested times ───────────────────────────
+    if crashed:
+        t_out = t_out[t_out <= t_crash]
+        if len(t_out) == 0:
+            t_out = np.array([0.0])
     solution = dense_sol.sol(t_out).T
 
     # ── Save raw data ────────────────────────────────────────────────────
@@ -158,6 +171,8 @@ def run_simulation(args):
         r_max=r_max, min_dr=min_dr, max_dr=max_dr,
         wall_time_s=wall_elapsed,
         solver_message=dense_sol.message,
+        solver_success=dense_sol.success,
+        t_crash=t_crash if crashed else -1.0,
         num_grid_points=int(grid.r.size),
     )
     np.savez(os.path.join(data_dir, "metadata.npz"), **meta)
