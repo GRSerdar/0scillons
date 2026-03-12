@@ -13,7 +13,7 @@ from bssn.ModifiedGravity import GBVars, get_gb_core, get_esgb_br_terms
 
 # function that returns the rhs for each of the field vars
 # see further details in https://github.com/GRChombo/engrenage/wiki/Useful-code-background
-def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, progress_bar, time_state, a,b, lambda_GB, coupling): 
+def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, progress_bar, time_state, a,b, lambda_GB, coupling, gauge_type="modified_harmonic", eta_gauge=1.0): 
     
     # Debugging
     #print("RHS called at t =", t_i, flush=True)
@@ -146,49 +146,50 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     ########################################################################################################
     # Set the gauge evolution for the lapse and shift
     # eta is the 1+log slicing damping coefficient - of order 1/M_adm of spacetime
+    #
+    # gauge_type selects the gauge condition:
+    #   "modified_harmonic"  – SAFE WORKING GAUGE (original default)
+    #   "baumgarte"          – Baumgarte paper: mu = lapse^2 in Gamma driver
+    #   "frozen"             – Geometric slicing (frozen lapse and shift)
 
-    # Modified Harmonic Gauge is implemented
-    # Option 1 
+    eta = eta_gauge
+
+    if gauge_type == "modified_harmonic":
+        bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
+        bssn_rhs.shift_U += (0.75 * bssn_vars.lambda_U - eta * bssn_vars.shift_U
+                                   -((a)/(1+a)) * (0.75 * bssn_vars.lambda_U
+                                                   + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
+        bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+        bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+
+    elif gauge_type == "baumgarte":
+        mu_new = bssn_vars.lapse * bssn_vars.lapse
+        bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
+        bssn_rhs.shift_U += (mu_new[:,np.newaxis] * bssn_vars.lambda_U - eta * bssn_vars.shift_U
+                                   -((a)/(1+a)) * (mu_new[:,np.newaxis] * bssn_vars.lambda_U
+                                                   + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
+        bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
+        bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
     
-    # SAFE WORKING GAUGE
-    eta = 1.0
-    # we are not using b_U but we keep it in to not break anything
-    bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
+    elif gauge_type == "bona_masso":
+        bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
+        mu_new = bssn_vars.lapse * bssn_vars.lapse
+        kappa = 2/3
+        function = 1+(kappa/ (bssn_vars.lapse*bssn_vars.lapse))
+        bssn_rhs.shift_U += (mu_new[:,np.newaxis] * bssn_vars.lambda_U - eta * bssn_vars.shift_U
 
+                                   -((a)/(1+a)) * (mu_new[:,np.newaxis] * bssn_vars.lambda_U
+                                                   + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
 
-    # ── Option 1: Modified Harmonic Gauge with Gamma driver ──
-    bssn_rhs.shift_U += (0.75 * bssn_vars.lambda_U - eta * bssn_vars.shift_U
-                               -((a)/(1+a)) * (0.75 * bssn_vars.lambda_U
-                                               + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
+        bssn_rhs.lapse   += bssn_vars.lapse*bssn_vars.lapse * function * (((a)/(1+a)) - 1) *(bssn_vars.K  - np.mean(bssn_vars.K))
+                                                   
+    elif gauge_type == "frozen":
+        bssn_rhs.lapse    = np.zeros_like(r)
+        bssn_rhs.shift_U  = np.zeros_like(r)[:,np.newaxis]
 
-    # We changed to K - <K> gauge for cosmology
-    bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
-    bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
-    
-    """
-    
-    # New Gauge from Baumegarte paper
-    mu_old = 0.75
-    mu_new = (bssn_vars.lapse)*(bssn_vars.lapse)
-    eta = 1.0
-    # we are not using b_U but we keep it in to not break anything
-    bssn_rhs.b_U     += 0.75 * bssn_rhs.lambda_U - eta * bssn_vars.b_U
-
-    # ── Option 1: Modified Harmonic Gauge with Gamma driver ──
-    bssn_rhs.shift_U += (mu_new[:,np.newaxis] * bssn_vars.lambda_U - eta * bssn_vars.shift_U
-                               -((a)/(1+a)) * (mu_new[:,np.newaxis] * bssn_vars.lambda_U
-                                               + bssn_vars.lapse[:,np.newaxis] * np.einsum("xia, xa->xi",gamma_UU, d1.lapse)))
-
-    # We changed to K - <K> gauge for cosmology
-    bssn_rhs.lapse   += - 2.0 * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
-    bssn_rhs.lapse   += 2*((a)/(1+a)) * bssn_vars.lapse * (bssn_vars.K  - np.mean(bssn_vars.K))
-    """
-
-    """
-    # ── Option 2: Geometric slicing (frozen lapse and shift) ──
-    bssn_rhs.lapse =  np.zeros_like(r)
-    bssn_rhs.shift_U = np.zeros_like(r)[:,np.newaxis]
-    """
+    else:
+        raise ValueError(f"Unknown gauge_type '{gauge_type}'. "
+                         f"Choose from: modified_harmonic, baumgarte, bona_masso, frozen")
     
     ########################################################################################################
     # ADVECTION

@@ -31,3 +31,10 @@ Grid: 216 points,  r in [-0.1559, 150.0]
 error is:  0.009486661886504728  after iter:  22
 
 Starting integration (T = 800.0) ...
+Integration finished in 2.82 h  (status: The solver successfully reached the end of the integration interval.)
+Saved solution: shape (1000, 3024)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb7.0_mu0.08_a0.2_b0.4_amp-0.05_R3_dr0.0625_quadratic_0
+Computing oscillon diagnostics ...
+  max compactness C = 4.439699e+00
+Done.
+
+Finished: Wed Mar 11 03:10:34 CET 2026

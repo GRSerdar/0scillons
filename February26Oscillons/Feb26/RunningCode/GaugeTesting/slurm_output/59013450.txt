@@ -1,0 +1,46 @@
+SLURM_JOB_ID: 59013450
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: gt_mh_lo
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n08
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Wed Mar 11 11:29:24 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID      : 59013450
+  Node        : r25i13n08
+  gauge_type  : modified_harmonic
+  eta         : 1.0
+  a_mg, b_mg  : 0.2, 0.4
+  lambda_GB   : 0
+  mu          : 0.08
+  coupling    : quadratic
+  amplitude   : -2e-2
+  width       : 3
+  T           : 800
+  min_dr      : 0.0625
+  max_dr      : 2
+  r_max       : 150
+  Started     : Wed Mar 11 11:29:32 CET 2026
+========================================================
+======================================================================
+Gauge-testing oscillon simulation
+  gauge_type    = modified_harmonic
+  eta           = 1.0
+  lambda_GB     = 0.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.2, 0.4)
+  perturbation  = -0.02,  width = 3.0
+  coupling      = quadratic
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150.0, dr in [0.0625, 2.0]
+  Output dir: /data/leuven/384/vsc38419/gauge_testing/gauge_modified_harmonic_eta1.0_lgb0.0_mu0.08_a0.2_b0.4_amp-0.02_R3.0_dr0.0625_maxdr2.0
+======================================================================
+Grid: 216 points,  r in [-0.1559, 150.0]
+error is:  0.009753944138166456  after iter:  14
+
+Starting integration (T = 800.0) ...
