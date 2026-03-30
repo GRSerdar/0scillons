@@ -1,0 +1,53 @@
+SLURM_JOB_ID: 59041830
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: osc_lgb8_lin_ab0
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r27i27n20
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Mon Mar 23 15:03:53 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59041830
+  Node      : r27i27n20
+  lambda_GB : 8
+  a_mg, b_mg: 0, 0
+  min_dr    : 0.0625
+  T         : 800
+  Started   : Mon Mar 23 15:04:09 CET 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 8.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -0.02,  width = 3.0
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.0625, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb8.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.0625_linear
+======================================================================
+Grid: 216 points,  r in [-0.1559, 150.0]
+error is:  0.009753944138166456  after iter:  14
+
+Starting integration (T = 800.0) ...
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.94114802 0.94114802 0.94114803 0.94114804 0.94114805]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.94114802 0.94114802 0.94114803 0.94114804 0.94114805]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.94114802 0.94114802 0.94114803 0.94114804 0.94114805]
+Integration finished in 0.14 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 3.7345 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 3.7345
+Saved solution: shape (5, 3024)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb8.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.0625_linear
+Computing oscillon diagnostics ...
+  max compactness C = 4.439620e+00
+Done.
+
+Finished: Mon Mar 23 15:12:39 CET 2026

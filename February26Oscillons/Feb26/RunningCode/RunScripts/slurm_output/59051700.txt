@@ -1,0 +1,131 @@
+SLURM_JOB_ID: 59051700
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: osc_lgb4_a-1
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n15
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Wed Mar 25 14:27:44 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59051700
+  Node      : r25i13n15
+  lambda_GB : 4
+  a_mg, b_mg: 0, 0
+  min_dr    : 0.041666666666666664
+  T         : 800
+  Started   : Wed Mar 25 14:27:59 CET 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 4.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -1.0,  width = 3.0
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.041666666666666664, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb4.0_mu0.08_a0.0_b0.0_amp-1.0_R3.0_dr0.041666666666666664_quadratic_0
+======================================================================
+Grid: 220 points,  r in [-0.1041, 150.0]
+error is:  0.0050791850450395285  after iter:  28
+
+Starting integration (T = 800.0) ...
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95882568 0.95882661 0.95882751 0.95882838 0.95882921]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95879348 0.95879441 0.95879532 0.95879619 0.95879702]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9593437  0.95934461 0.9593455  0.95934636 0.95934718]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95975983 0.95976073 0.95976162 0.95976247 0.95976328]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977087 0.95977176 0.95977265 0.9597735  0.95977431]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977119 0.95977209 0.95977298 0.95977383 0.95977464]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9597712  0.95977209 0.95977298 0.95977383 0.95977464]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977228 0.95977317 0.95977406 0.95977491 0.95977572]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977407 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.95977229 0.95977319 0.95977408 0.95977493 0.95977574]
+Integration finished in 0.11 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 0.2359 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 0.2359
+Saved solution: shape (1, 3080)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb4.0_mu0.08_a0.0_b0.0_amp-1.0_R3.0_dr0.041666666666666664_quadratic_0
+Computing oscillon diagnostics ...
+  max compactness C = 4.435790e+00
+Done.
+
+Finished: Wed Mar 25 14:35:24 CET 2026

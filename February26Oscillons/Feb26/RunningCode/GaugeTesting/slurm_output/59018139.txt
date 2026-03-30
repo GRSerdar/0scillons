@@ -1,0 +1,58 @@
+SLURM_JOB_ID: 59018139
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: gt_mh_lo_sa0.5
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n03
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Fri Mar 13 14:23:07 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID      : 59018139
+  Node        : r25i13n03
+  gauge_type  : modified_harmonic
+  eta         : 1.0
+  a_mg, b_mg  : 0.2, 0.4
+  lambda_GB   : 0
+  mu          : 0.08
+  coupling    : quadratic
+  amplitude   : -2e-2
+  width       : 3
+  T           : 800
+  min_dr      : 0.125
+  max_dr      : 2
+  r_max       : 150
+  spacing     : sinh
+  sinh_a      : 0.5
+  Started     : Fri Mar 13 14:23:26 CET 2026
+========================================================
+======================================================================
+Gauge-testing oscillon simulation
+  gauge_type    = modified_harmonic
+  eta           = 1.0
+  lambda_GB     = 0.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.2, 0.4)
+  perturbation  = -0.02,  width = 3.0
+  coupling      = quadratic
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150.0, dr in [0.125, 2.0], spacing = sinh, sinh_a = 0.5
+  Output dir: /data/leuven/384/vsc38419/gauge_testing/gauge_modified_harmonic_eta1.0_lgb0.0_mu0.08_a0.2_b0.4_amp-0.02_R3.0_dr0.125_maxdr2.0_sinh_sinha0.5
+======================================================================
+  SinhSpacing: a=0.5, x_max=6.3969, num_points=30, actual min_dr=0.120990
+Grid: 30 points,  r in [-0.3204, 150.0]
+error is:  0.009692183340228493  after iter:  9
+
+Starting integration (T = 800.0) ...
+Integration finished in 0.08 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 244.7536 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 244.7536
+Saved solution: shape (306, 420)  ->  /data/leuven/384/vsc38419/gauge_testing/gauge_modified_harmonic_eta1.0_lgb0.0_mu0.08_a0.2_b0.4_amp-0.02_R3.0_dr0.125_maxdr2.0_sinh_sinha0.5
+Computing oscillon diagnostics ...
+  max compactness C = 3.866593e+00
+Done.
+
+Finished: Fri Mar 13 14:28:21 CET 2026

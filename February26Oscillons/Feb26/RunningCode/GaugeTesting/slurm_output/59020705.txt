@@ -1,0 +1,56 @@
+SLURM_JOB_ID: 59020705
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: gt_ab0_bm_lo
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n03
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Mon Mar 16 16:57:45 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID      : 59020705
+  Node        : r25i13n03
+  gauge_type  : bona_masso
+  eta         : 1.0
+  a_mg, b_mg  : 0, 0
+  lambda_GB   : 0
+  mu          : 0.08
+  coupling    : quadratic
+  amplitude   : -2e-2
+  width       : 3
+  T           : 800
+  min_dr      : 0.125
+  max_dr      : 2
+  r_max       : 150
+  spacing     : cubic
+  sinh_a      : auto
+  Started     : Mon Mar 16 16:58:02 CET 2026
+========================================================
+======================================================================
+Gauge-testing oscillon simulation
+  gauge_type    = bona_masso
+  eta           = 1.0
+  lambda_GB     = 0.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -0.02,  width = 3.0
+  coupling      = quadratic
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150.0, dr in [0.125, 2.0], spacing = cubic
+  Output dir: /data/leuven/384/vsc38419/gauge_testing/gauge_bona_masso_eta1.0_lgb0.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.125_maxdr2.0
+======================================================================
+Grid: 204 points,  r in [-0.3120, 150.0]
+  actual min_dr = 0.124692,  max_step = 0.049877
+error is:  0.00954735408434093  after iter:  9
+
+Starting integration (T = 800.0) ...
+Integration finished in 1.28 h  (status: The solver successfully reached the end of the integration interval.)
+Saved solution: shape (1000, 2856)  ->  /data/leuven/384/vsc38419/gauge_testing/gauge_bona_masso_eta1.0_lgb0.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.125_maxdr2.0
+Computing oscillon diagnostics ...
+  max compactness C = 4.450064e+00
+Done.
+
+Finished: Mon Mar 16 18:14:44 CET 2026

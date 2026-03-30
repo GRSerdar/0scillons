@@ -48,6 +48,7 @@ MIN_DR_VAL="${MIN_DR:-0.0625}"
 MAX_DR_VAL="${MAX_DR:-2}"
 R_MAX_VAL="${R_MAX:-150}"
 SPACING_VAL="${SPACING:-cubic}"
+SINH_A_VAL="${SINH_A:-}"
 
 SCRIPT_DIR="${SLURM_SUBMIT_DIR}"
 mkdir -p "${SCRIPT_DIR}/slurm_output"
@@ -68,10 +69,15 @@ echo "  min_dr      : ${MIN_DR_VAL}"
 echo "  max_dr      : ${MAX_DR_VAL}"
 echo "  r_max       : ${R_MAX_VAL}"
 echo "  spacing     : ${SPACING_VAL}"
+echo "  sinh_a      : ${SINH_A_VAL:-auto}"
 echo "  Started     : $(date)"
 echo "========================================================"
 
 FORCE_FLAG="${FORCE:+--force}"
+SINH_A_FLAG=""
+if [ -n "${SINH_A_VAL}" ]; then
+    SINH_A_FLAG="--sinh_a=${SINH_A_VAL}"
+fi
 
 python3 "${SCRIPT_DIR}/run_gauge_test.py" \
     --gauge_type="${GAUGE_TYPE}" \
@@ -90,6 +96,7 @@ python3 "${SCRIPT_DIR}/run_gauge_test.py" \
     --min_dr="${MIN_DR_VAL}" \
     --max_dr="${MAX_DR_VAL}" \
     --spacing="${SPACING_VAL}" \
+    ${SINH_A_FLAG} \
     ${FORCE_FLAG}
 
 echo "Finished: $(date)"

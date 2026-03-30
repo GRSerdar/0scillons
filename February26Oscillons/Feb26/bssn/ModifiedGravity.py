@@ -258,8 +258,13 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
 
 
     if coupling == "linear":
-        d1Lambdadu = lambda_GB * S
-        d2Lambdadduu = 0 * S
+        """
+        Trying out the coupling function
+        lambda(phi) = lambda_linear phi + lambda_quadratic phi^2
+        """
+        lambda_linear = 0.5
+        d1Lambdadu = (lambda_linear+ 2*lambda_GB*matter.u) * S
+        d2Lambdadduu = (2*lambda_GB)* S
 
         gb_vars.d1Lambdadu[:]     = d1Lambdadu
         gb_vars.d2Lambdadduu[:]   = d2Lambdadduu

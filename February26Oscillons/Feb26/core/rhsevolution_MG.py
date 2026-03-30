@@ -121,7 +121,7 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
 
     # (1) Calculating all MG related quantities at once in an object, and then passing this object trough
     gb = GBVars(N)
-
+    
     # Adding gauss bonnet terms without backreaction
     get_gb_core(gb, r, bssn_vars, d1, d2, grid, background, lambda_GB, chi0)
 

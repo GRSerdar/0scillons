@@ -1,0 +1,101 @@
+SLURM_JOB_ID: 59045362
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: osc_lgb8_lin_ab0_24
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n11
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Tue Mar 24 11:25:32 CET 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59045362
+  Node      : r25i13n11
+  lambda_GB : 8
+  a_mg, b_mg: 0, 0
+  min_dr    : 0.041666666666666664
+  T         : 800
+  Started   : Tue Mar 24 11:25:50 CET 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 8.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -0.02,  width = 3.0
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.041666666666666664, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb8.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.041666666666666664_linear
+======================================================================
+Grid: 220 points,  r in [-0.1041, 150.0]
+error is:  0.009183845353543775  after iter:  17
+
+Starting integration (T = 800.0) ...
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.96825302 0.96825302 0.96825303 0.96825303 0.96825304]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9676065  0.9676065  0.96760651 0.96760651 0.96760652]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.96735529 0.96735529 0.9673553  0.9673553  0.96735531]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.96698026 0.96698026 0.96698027 0.96698027 0.96698028]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.9669804  0.96698041 0.96698041]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.9669804  0.96698041 0.96698041]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Matrix solve failed: Singular matrix
+Last 5 determinants before failure:
+[0.9669804  0.9669804  0.96698041 0.96698041 0.96698042]
+Integration finished in 0.10 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 3.5612 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 3.5612
+Saved solution: shape (5, 3080)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb8.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.041666666666666664_linear
+Computing oscillon diagnostics ...
+  max compactness C = 4.429830e+00
+Done.
+
+Finished: Tue Mar 24 11:32:04 CET 2026

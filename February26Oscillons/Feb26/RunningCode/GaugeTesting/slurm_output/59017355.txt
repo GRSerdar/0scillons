@@ -45,3 +45,10 @@ Grid: 295 points,  r in [-0.2077, 150.0]
 error is:  0.009746481958271162  after iter:  12
 
 Starting integration (T = 800.0) ...
+Integration finished in 2.58 h  (status: The solver successfully reached the end of the integration interval.)
+Saved solution: shape (1000, 4130)  ->  /data/leuven/384/vsc38419/gauge_testing/gauge_bona_masso_eta1.0_lgb0.0_mu0.08_a0.2_b0.4_amp-0.02_R3.0_dr0.08333333_maxdr2.0_sinh
+Computing oscillon diagnostics ...
+  max compactness C = 4.424808e+00
+Done.
+
+Finished: Thu Mar 12 21:24:29 CET 2026

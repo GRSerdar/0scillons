@@ -31,6 +31,10 @@ NPTS="${NPTS:-1000}"
 COUPLING_TYPE="${COUPLING:-quadratic}"
 CHI0_VAL="${CHI0:-0.15}"
 PERTURB="${AMP:--2e-2}"
+A_MG_VAL="${A_MG:-0.2}"
+B_MG_VAL="${B_MG:-0.4}"
+MIN_DR_VAL="${MIN_DR:-0.0625}"
+WIDTH_VAL="${WIDTH:-3}"
 
 SCRIPT_DIR="${SLURM_SUBMIT_DIR}"
 mkdir -p "${SCRIPT_DIR}/slurm_output"
@@ -39,6 +43,8 @@ echo "========================================================"
 echo "  Job ID    : ${SLURM_JOB_ID}"
 echo "  Node      : $(hostname)"
 echo "  lambda_GB : ${LAMBDA_GB}"
+echo "  a_mg, b_mg: ${A_MG_VAL}, ${B_MG_VAL}"
+echo "  min_dr    : ${MIN_DR_VAL}"
 echo "  T         : ${T_EVOL}"
 echo "  Started   : $(date)"
 echo "========================================================"
@@ -53,6 +59,10 @@ python3 "${SCRIPT_DIR}/run_oscillon.py" \
     --coupling="${COUPLING_TYPE}" \
     --chi0="${CHI0_VAL}" \
     --perturbation="${PERTURB}" \
+    --a_mg="${A_MG_VAL}" \
+    --b_mg="${B_MG_VAL}" \
+    --min_dr="${MIN_DR_VAL}" \
+    --width="${WIDTH_VAL}" \
     ${FORCE_FLAG}
 
 echo "Finished: $(date)"

@@ -47,7 +47,7 @@ TABLE_I = {
 
 def build_run_tag(gauge_type, eta, lgb, selfinteraction, a_mg, b_mg,
                   perturbation, width, min_dr, max_dr, coupling="quadratic",
-                  spacing_type="cubic"):
+                  spacing_type="cubic", sinh_a=None):
     tag = (
         f"gauge_{gauge_type}_eta{eta}"
         f"_lgb{lgb}_mu{selfinteraction}_a{a_mg}_b{b_mg}"
@@ -56,6 +56,8 @@ def build_run_tag(gauge_type, eta, lgb, selfinteraction, a_mg, b_mg,
     )
     if spacing_type != "cubic":
         tag += f"_{spacing_type}"
+    if sinh_a is not None:
+        tag += f"_sinha{sinh_a}"
     if coupling != "quadratic":
         tag += f"_{coupling}"
     return tag
@@ -81,6 +83,7 @@ def run_simulation(args):
     gauge_type = args.gauge_type
     eta = args.eta
     spacing_type = args.spacing
+    sinh_a = args.sinh_a
 
     T = args.T
     num_points_t = args.num_points_t
@@ -93,7 +96,8 @@ def run_simulation(args):
     lgb = args.lambda_gb
 
     tag = build_run_tag(gauge_type, eta, lgb, selfinteraction, a_mg, b_mg,
-                        perturbation, width, min_dr, max_dr, coupling, spacing_type)
+                        perturbation, width, min_dr, max_dr, coupling, spacing_type,
+                        sinh_a)
     vsc_data = os.environ.get("VSC_DATA", os.path.join(SCRIPT_DIR, "..", "DATA"))
     data_dir = os.path.join(vsc_data, "gauge_testing", tag)
     os.makedirs(data_dir, exist_ok=True)
@@ -113,20 +117,30 @@ def run_simulation(args):
     print(f"  perturbation  = {perturbation},  width = {width}")
     print(f"  coupling      = {coupling}")
     print(f"  T = {T},  output points = {num_points_t}")
-    print(f"  Grid: r_max = {r_max}, dr in [{min_dr}, {max_dr}], spacing = {spacing_type}")
+    sinh_a_str = f", sinh_a = {sinh_a}" if sinh_a is not None else ""
+    print(f"  Grid: r_max = {r_max}, dr in [{min_dr}, {max_dr}], spacing = {spacing_type}{sinh_a_str}")
     print(f"  Output dir: {data_dir}")
     print("=" * 70)
 
     matter = ScalarMatter(scalar_mu, selfinteraction)
     sv = StateVector(matter)
     if spacing_type == "sinh":
-        spacing = SinhSpacing(**SinhSpacing.get_parameters(r_max, min_dr, max_dr))
+        if sinh_a is not None:
+            auto_params = SinhSpacing.get_parameters(r_max, min_dr, max_dr)
+            num_points = auto_params["num_points"]
+            spacing = SinhSpacing(num_points=num_points, r_max=r_max, a=sinh_a)
+            print(f"  SinhSpacing: a={sinh_a} (override), auto_a={auto_params['a']:.4f}, "
+                  f"num_points={num_points}, actual min_dr={spacing.min_dr:.6f}")
+        else:
+            spacing = SinhSpacing(**SinhSpacing.get_parameters(r_max, min_dr, max_dr))
     else:
         spacing = CubicSpacing(**CubicSpacing.get_parameters(r_max, min_dr, max_dr))
     grid = Grid(spacing, sv)
     bg = FlatSphericalBackground(grid.r)
 
+    actual_min_dr = spacing.min_dr
     print(f"Grid: {grid.r.size} points,  r in [{grid.r[0]:.4f}, {grid.r[-1]:.1f}]")
+    print(f"  actual min_dr = {actual_min_dr:.6f},  max_step = {0.4 * actual_min_dr:.6f}")
 
     params = (lgb, a_mg, b_mg, chi0, coupling)
     initial_state = get_initial_state(
@@ -143,7 +157,7 @@ def run_simulation(args):
             initial_state,
             args=(grid, bg, matter, pbar, [0, T / 1000],
                   a_mg, b_mg, lgb, coupling, gauge_type, eta),
-            max_step=0.4 * min_dr,
+            max_step=0.4 * actual_min_dr,
             method="RK45",
             dense_output=True,
         )
@@ -172,6 +186,7 @@ def run_simulation(args):
 
     meta = dict(
         gauge_type=gauge_type, eta=eta, spacing_type=spacing_type,
+        sinh_a=sinh_a if sinh_a is not None else -1.0,
         lambda_gb=lgb, selfinteraction=selfinteraction,
         a_mg=a_mg, b_mg=b_mg, chi0=chi0, coupling=coupling,
         perturbation=perturbation, width=width,
@@ -244,6 +259,8 @@ def parse_args():
     p.add_argument("--spacing", type=str, default="cubic",
                    choices=["cubic", "sinh"],
                    help="Grid spacing type (default: cubic)")
+    p.add_argument("--sinh_a", type=float, default=None,
+                   help="Override sinh spacing parameter a (default: auto from min_dr/max_dr)")
     # ── Misc ──
     p.add_argument("--force", action="store_true",
                    help="Overwrite existing data")
