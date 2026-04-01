@@ -1,5 +1,7 @@
 # ModifiedGravity.py 
 
+from February26Oscillons.Feb26.RunningCode.DATA.compare_aligned import phi
+from February26Oscillons.Feb26.bssn import bssnvars
 import numpy as np
 
 from core.grid import *
@@ -34,6 +36,16 @@ class GBVars:
         self.Omega_LL               = np.zeros((N,3,3))
         self.d1Lambdadu             = np.zeros(N)  # scalar “coupling-derivative” factor
         self.d2Lambdadduu           = np.zeros(N)  # scalar “coupling-derivative” factor
+
+        # Extra objects needed for the g2 term
+        self.g2                         = 0
+        self.Vt                         = np.zeros(N)
+        self.Box_LL                     = np.zeros((N,3,3)) 
+        self.Sigma                      = np.zeros(N)
+        self.quadratic                  = np.zeros(N)    
+        self.rho_g2                     = np.zeros(N)
+        self.S_g2_L                     = np.zeros((N,3))
+        # The trace and trace free part of Sij will be added inline
 
         # Full L_GB (includes perp terms, set after matrix solve)
         self.full_L_GB              = np.zeros(N)
@@ -243,6 +255,7 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     TF_M_UU  = gb_vars.TraceFree_M_UU
     N_L      = gb_vars.N_L
     bar_L_GB = gb_vars.bar_L_GB
+
     #d1Lambdadu = gb_vars.d1Lambdadu
     #d2Lambdadduu = gb_vars.d2Lambdadduu
 
@@ -363,6 +376,40 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     bar_F_LL = (ilapse[:,np.newaxis,np.newaxis] * DkDl_lapse
                     + e4phi[:,np.newaxis,np.newaxis] * (bar_A_LL_A_UL - two_thirds * (bssn_vars.K[:,np.newaxis,np.newaxis] 
                                                                                       - ilapse[:,np.newaxis,np.newaxis] * div_shift[:,np.newaxis,np.newaxis]) * bar_A_LL))
+
+    ########################## Extra objects needed for the g2 term ##########################
+    g2 = 0.1
+
+    # useful object
+    Vt = (-(matter.v)*(matter.v) + np.einsum("xij, xi, xj->x",gamma_UU,matter.d1_u,matter.d1_u)) 
+
+    Sigma = 1+ g2*(-Vt + 2*matter.v * matter.v)
+    iSigma = 1/Sigma
+    
+    # This one is called covd2phi_times_chi[k][l] in GRFolres
+    # Remember that \partial_i \chi = -4\chi \partial_i \phi (where \phi is the comformal factor and not the scalar field u)
+    Box_LL = (chi*(matter.d2_u - np.einsum("xmij, xm->xij", bar_chris, matter.d1_u))
+              - 2 *chi * (np.einsum("xi, xj->xij",matter.d1_u, d1.phi)
+                          + np.einsum("xi, xj->xij", d1.phi, matter.d1_u)
+                          - np.einsum("xij, xd, xdk, xk->xij",bar_gamma_LL, matter.d1_u, bar_gamma_UU, d1.phi)))
+
+    #\partial^i\phi \partial^j\phi
+    d_u_phi_d_u_phi = np.einsum("xik, xjl, xk, xl->xij",bar_gamma_UU, bar_gamma_UU, matter.d1_u, matter.d1_u)
+
+    quadratic = (d1Lambdadu/ Sigma) * (- matter.dVdu(matter.u) - 2*g2* matter.v * matter.v * matter.v * bssn_vars.K
+                                       + 2*g2* matter.v* matter.v * (-2*chi*np.einsum("xij, xj, xi->x",bar_gamma_UU, d1.phi, matter.d1_u) - chi*np.einsum("xij, xij->x",bar_gamma_UU, matter.d2_u))
+                                       + 2*g2* matter.v* matter.v * np.einsum("xij, xkij, xk->x",gamma_UU, bar_chris, matter.d1_u)
+                                       + two_thirds * g2 * matter.v * bssn_vars.K * (Vt+ matter.v *matter.v)
+                                       + 4 * g2 * matter.v * np.einsum("xij, xj, xi->x", gamma_UU, matter.d1_u, matter.d1_v)
+                                       + 2* g2 * chi * (matter.v * np.einsum("xij, xij->x",d_u_phi_d_u_phi, bar_A_LL) - np.einsum("xij, xij->x",d_u_phi_d_u_phi, Box_LL)))
+    
+    # g2 contribution to rho
+    rho_g2 = g2 * Vt * (Vt/4 + matter.v * matter.v)
+
+    # g2 contributino to Si
+    S_g2_L = g2 * Vt[:,np.newaxis] * matter.v[:,np.newaxis] * matter.d1_u
+
+    ########################## Extra objects needed for the g2 term ##########################
    
     # bar Trace Free S_GB
     bar_TF_S_GB_LL = ( - two_thirds * TF_Omega_LL*(bar_F[:,np.newaxis, np.newaxis] 
@@ -371,7 +418,8 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
                             - 2 * TF_M_LL*(  Trace_Omega[:,np.newaxis, np.newaxis] 
                                                 - 4*d2Lambdadduu[:,np.newaxis, np.newaxis]* (-(matter.v[:,np.newaxis, np.newaxis])*(matter.v[:,np.newaxis, np.newaxis]) 
                                                                                              + np.einsum("xij, xi, xj->x",gamma_UU,matter.d1_u,matter.d1_u)[:,np.newaxis, np.newaxis]) 
-                                                - 4 * matter.dVdu(matter.u)[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis])
+                                                #- 4 * matter.dVdu(matter.u)[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis]) #This is the old term without term without g2 into account.
+                                                +4 * quadratic[:,np.newaxis, np.newaxis])
                             -  two_thirds * Trace_Omega[:,np.newaxis, np.newaxis]*(bar_F_LL - one_third * gamma_LL*(ilapse[:,np.newaxis, np.newaxis] * D2_lapse[:,np.newaxis, np.newaxis] 
                                                                                                                     - Asquared[:,np.newaxis, np.newaxis]))
                             +  2 * (  np.einsum("xi, xj->xij",N_L, Omega_L) 
@@ -386,16 +434,20 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
                             -   four_thirds * (  np.einsum("xij, xkl, xkl->xij",gamma_LL, TF_Omega_UU, bar_F_LL)
                                             + 2 * np.einsum("xij, xk, xk->xij", gamma_LL, Omega_U, N_L)
                                             + np.einsum("xij, xk, xk->xij",gamma_LL, Omega_U, d1.K))
-                            -  8 * (d1Lambdadu[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis] * TF_M_LL * bar_L_GB[:,np.newaxis, np.newaxis])) 
+                            #- 8  * (d1Lambdadu[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis] * TF_M_LL * bar_L_GB[:,np.newaxis, np.newaxis])) #old term without g2 corrections
+                            -  8 * iSigma[:,np.newaxis,np.newaxis] * (d1Lambdadu[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis] * TF_M_LL * bar_L_GB[:,np.newaxis, np.newaxis])) 
     
     # bar_S_GB (scalar)  
     bar_S_GB = (four_thirds * Trace_Omega * bar_F
                 + 4 * Trace_M * (- d2Lambdadduu* (- (matter.v)*(matter.v) + (np.einsum("xij, xi, xj->x",gamma_UU, matter.d1_u, matter.d1_u)))
-                                    - d1Lambdadu * matter.dVdu(matter.u) + one_third * Trace_Omega)
+                                    #- d1Lambdadu * matter.dVdu(matter.u) #old term without g2 corrections
+                                    + quadratic
+                                    + one_third * Trace_Omega)
                 - rho_GB
                 - 2 * (np.einsum("xij, xij->x",TF_Omega_UU, M_LL) + np.einsum("xij, xij->x", TF_Omega_UU, bar_F_LL))
                 - 4 * np.einsum("xij, xj, xi->x",gamma_UU, N_L, Omega_L)
-                + 4 * d1Lambdadu * d1Lambdadu * Trace_M * bar_L_GB)
+                #+ 4 * d1Lambdadu * d1Lambdadu * Trace_M * bar_L_GB) #old term without g2 corrections
+                + 4* iSigma * d1Lambdadu * d1Lambdadu * Trace_M * bar_L_GB)
     
     # Store
     gb_vars.rho_GB[:]                = rho_GB
@@ -404,3 +456,16 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     gb_vars.bar_S_GB[:]              = bar_S_GB
     gb_vars.Omega_LL[:]              = Omega_LL
 
+    # Store g2 terms
+    gb_vars.g2                      = g2
+    gb_vars.Vt[:]                   = Vt
+    gb_vars.rho_g2[:]               = rho_g2
+    gb_vars.S_g2_L[:]               = S_g2_L
+    gb_vars.Sigma[:]                = Sigma
+    gb_vars.rho_g2[:]               = rho_g2
+    gb_vars.S_g2_L[:]               = S_g2_L
+
+
+    # Do we need to store these ?
+    #gb_vars.Box_LL[:]               = Box_LL
+    #gb_vars.quadratic[:]            = quadratic

@@ -2,6 +2,7 @@
 # as in Etienne https://arxiv.org/abs/1712.07658v2
 # see also Baumgarte https://arxiv.org/abs/1211.6632 for the eqns with matter
 
+from signal import Sigmasks
 import numpy as np
 from bssn.tensoralgebra import *
 from bssn.bssnvars import *
@@ -20,6 +21,7 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     a, b = gauge_coefficients
 
     em4phi = np.exp(-4.0*bssn_vars.phi)
+    chi = em4phi
     e4phi  = 1.0/em4phi
     ilapse = 1/ bssn_vars.lapse
 
@@ -68,6 +70,9 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     N_L      = gb.N_L
     Trace_M  = gb.Trace_M  
 
+    #Gauss Bonnet rho correction 
+    rho_GB = gb.rho_GB
+
     # We zero out these two terms 
     bar_TraceFree_S_GB_LL     = gb.bar_TraceFree_S_GB_LL
     bar_S_GB                  = gb.bar_S_GB
@@ -75,16 +80,24 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     Omega_LL                  = gb.Omega_LL
     d1Lambdadu                = gb.d1Lambdadu
 
+    #g2 extra terms
+    g2         = gb.g2 
+
+    rho_g2     = gb.rho_g2
+    S_g2_L     = gb.S_g2_L
+
+    Vt         = gb.Vt
+    Sigma      = gb.Sigma
+    iSigma     = 1/Sigma
+    
     ####################################################################################################
     # Importing EM tensor (which already holds the backreaction corrections in rho and S_L #############
     #EMtensor = matter.get_emtensor(r, bssn_vars, d1, d2, bssn_rhs, grid, background, gb)
     u = matter.u
     v = matter.v
 
-    rho_GB = gb.rho_GB
-
     # We take the full object here immediately since this equation is not being split up when using the matrix formalism
-    S_L_FULL = EMtensor.Si + gb.S_GB_L
+    S_L_FULL = EMtensor.Si + gb.S_GB_L + gb.S_g2_L
 
     d1_u = matter.d1_u
     d2_u = matter.d2_u
@@ -142,12 +155,12 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
 
     # Calculate rhs (BackReaction Correction of EsGB is added)
     dKdt = (bssn_vars.lapse * (one_third * bssn_vars.K * bssn_vars.K 
-                               + bar_A_squared + 0.5 * eight_pi_G * (0))
+                               + bar_A_squared + 0.5 * eight_pi_G * (0)) # the rho term will be added below
             - em4phi * (bar_D2_lapse 
                         + 2.0 * np.einsum('xij,xi,xj->x', bar_gamma_UU, d1.lapse, d1.phi)))
     
     # Extra term to RHS due to Modified Gauge 
-    dKdt += ((bssn_vars.lapse*b)/(4*(1+b))) * (Trace_M - 2 * eight_pi_G * (0))
+    dKdt += ((bssn_vars.lapse*b)/(4*(1+b))) * (Trace_M - 2 * eight_pi_G * (0)) #the matter term will be added below
     
     # We comment this out in the MG case, but to verify standard GR we can use it
     # bssn_rhs.K = dKdt 
@@ -292,6 +305,8 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     #delta_U_L = np.identity(SPACEDIM)[:,np.newaxis]
 
     # Define all matrix components
+    """
+    # Working matrix (without g2 corrections)
     X_ij_UU = (np.einsum("xki, xlj->xijkl", delta_U_L, delta_U_L)*(1- (2*eight_pi_G/3)* Trace_Omega[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis])
                + eight_pi_G*(2*(np.einsum("xli, xjm, xmk->xijkl", delta_U_L, TraceFree_Omega_LL, gamma_UU) 
                              + np.einsum("xlj, xim, xmk->xijkl",delta_U_L, TraceFree_Omega_LL, gamma_UU))
@@ -308,18 +323,40 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
 
     Y_Pi = (four_thirds) * d1Lambdadu * Trace_M
+    """
+    # Matrix elements with g2 corrections included
+
+    X_ij_UU = (np.einsum("xki, xlj->xijkl", delta_U_L, delta_U_L)*(1- (2*eight_pi_G/3)* Trace_Omega[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis])
+               + eight_pi_G*(2*(np.einsum("xli, xjm, xmk->xijkl", delta_U_L, TraceFree_Omega_LL, gamma_UU) 
+                             + np.einsum("xlj, xim, xmk->xijkl",delta_U_L, TraceFree_Omega_LL, gamma_UU))
+                          - four_thirds * np.einsum("xij, xkl->xijkl", gamma_LL, TraceFree_Omega_UU)
+                          - 64 * iSigma[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis] *d1Lambdadu[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis] * d1Lambdadu[:,np.newaxis,np.newaxis,np.newaxis,np.newaxis] * np.einsum("xij, xkl-> xijkl",TraceFree_M_LL, TraceFree_M_UU)))
+    
+    Y_ij = (eight_pi_G / 3) * em4phi[:,np.newaxis, np.newaxis] * (32* iSigma[:,np.newaxis,np.newaxis] *d1Lambdadu[:,np.newaxis,np.newaxis] * d1Lambdadu[:,np.newaxis,np.newaxis]* TraceFree_M_LL * Trace_M[:,np.newaxis,np.newaxis] - 2 * TraceFree_Omega_LL)
+
+    X_K_UU = (eight_pi_G/ em4phi[:,np.newaxis, np.newaxis]) * (TraceFree_Omega_UU 
+                                                             - 16 * iSigma[:,np.newaxis,np.newaxis] *d1Lambdadu[:,np.newaxis,np.newaxis] * d1Lambdadu[:,np.newaxis,np.newaxis] * Trace_M[:,np.newaxis,np.newaxis] * TraceFree_M_UU)
+
+    Y_K = (1+(2*eight_pi_G/3)*(4* iSigma * d1Lambdadu*d1Lambdadu* Trace_M * Trace_M - Trace_Omega))
+
+    X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
+
+    Y_Pi = (four_thirds) * d1Lambdadu * Trace_M
 
    # the RHS (Added the GB backreaction corrections here)
     Z_A_LL = (background.scaling_matrix * dadt 
               - (bssn_vars.lapse[:, np.newaxis, np.newaxis] * em4phi[:,np.newaxis, np.newaxis] * eight_pi_G * ((EMtensor.Sij-one_third*gamma_LL*EMtensor.S[:,np.newaxis,np.newaxis]) + bar_TraceFree_S_GB_LL)  ))#+ perp_TF_S_GB_LL))
     
-    DKDT = (dKdt + 0.5 * eight_pi_G * bssn_vars.lapse  * (rho_GB + bar_S_GB + EMtensor.rho + EMtensor.S  )# + perp_S_GB)
-            + ((bssn_vars.lapse*b)/(4*(1+b))) * ( - 2* eight_pi_G * (EMtensor.rho + rho_GB)))
+    DKDT = (dKdt + 0.5 * eight_pi_G * bssn_vars.lapse  * ((EMtensor.rho + rho_GB + rho_g2) + (EMtensor.S + bar_S_GB))# + perp_S_GB) # bar_S_GB is already modified with the g2 terms 
+            + ((bssn_vars.lapse*b)/(4*(1+b))) * ( - 2* eight_pi_G * (EMtensor.rho + rho_GB + rho_g2))) #the rho matter terms are added here (now also including the g2 term)
     
     ########################################################
     #  Evolution equations for the scalar field and the cononical momentum
 
+    # Evolution equation for the scalar field
     dudt =  bssn_vars.lapse * v 
+
+    # Evolution equation for the canonical momentum of the scalar field
     dvdt =  ((bssn_vars.lapse * bssn_vars.K * v 
                  + 2.0 * bssn_vars.lapse * em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, d1.phi, d1_u)
                  +       bssn_vars.lapse * em4phi * np.einsum('xij,xij->x', bar_gamma_UU, d2_u)
@@ -328,7 +365,13 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
                  
                  - bssn_vars.lapse * matter.dVdu(u)
 
-                 + bssn_vars.lapse * d1Lambdadu * (bar_L_GB )) #+ perp_L_GB)) 
+                 + bssn_vars.lapse * d1Lambdadu * (bar_L_GB ) #+ perp_L_GB)) 
+                 # extra g2 terms
+                 - g2* bssn_vars.lapse * bssn_vars.K * v * Vt
+                 # Missing advection term (which is included in scalarmatter_MG)
+                 + g2 * bssn_vars.lapse * Vt *chi*(-2 * np.einsum("xij, xj, xi->x", bar_gamma_UU, d1.phi, d1_u) - np.einsum("xij, xij->x",bar_gamma_UU, d2_u))
+                 + g2 * bssn_vars.lapse * chi * Vt * np.einsum("xij, xkij, xk->x",bar_gamma_UU, bar_chris, d1_u)
+                 + g2 * chi * np.einsum("xij, xi, xj->x",bar_gamma_UU, d1.lapse, d1_u)*(2*v*v - Vt))
     
     ######## Debugging ################ Debugging ########
     # While taking M= unit matrix 
@@ -368,7 +411,8 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     M[:,3,0] = X_Pi_UU[:,ir,ir]
     M[:,3,1] = X_Pi_UU[:,it,it] + X_Pi_UU[:,ip,ip]
     M[:,3,2] = Y_Pi
-    M[:,3,3] = 1.0
+    #M[:,3,3] = 1.0 #(Without g2 correction)
+    M[:,3,3] = Sigma
 
     ######## Debugging ################ Debugging ########
     ######## Debugging ################ Debugging ########
@@ -378,11 +422,24 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     ######## Debugging ################ Debugging ########
     ######## Debugging ################ Debugging ########
 
-    # RHS
+    # Extra modifications to RHS of matrix for consistency of EsGB formulation in BSSN
+    #Full Hamiltonian Constraint
+    Hammer = Trace_M - 2* eight_pi_G * (EMtensor.rho + rho_GB + rho_g2)
+    dThetadt = (bssn_vars.lapse / (2+1*b)) * Hammer
+
+    """
+    # RHS OLD
     Z[:,0,0] = Z_A_LL[:,ir,ir]
     Z[:,1,0] = Z_A_LL[:,it,it] 
     Z[:,2,0] = DKDT
     Z[:,3,0] = dvdt
+    """
+    # RHS NEW
+    Z[:,0,0] = Z_A_LL[:,ir,ir] - 2*Y_ij[:,ir, ir] * dThetadt
+    Z[:,1,0] = Z_A_LL[:,it,it] - 2*Y_ij[:,it, it] * dThetadt
+    Z[:,2,0] = DKDT - 2*(1/Y_K) * dThetadt
+    Z[:,3,0] = dvdt - 2*(Y_Pi) * dThetadt
+
 
     try:
       dU = np.linalg.solve(M, Z)[...,0]
