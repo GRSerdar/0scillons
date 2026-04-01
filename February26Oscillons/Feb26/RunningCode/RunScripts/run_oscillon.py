@@ -86,6 +86,7 @@ def run_simulation(args):
     min_dr = args.min_dr
     max_dr = args.max_dr
     lgb = args.lambda_gb
+    g2 = args.g2
 
     tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr, coupling)
     vsc_data = os.environ.get("VSC_DATA", os.path.join(SCRIPT_DIR, "..", "DATA"))
@@ -100,6 +101,7 @@ def run_simulation(args):
     print("=" * 70)
     print(f"Oscillon MG simulation")
     print(f"  lambda_GB     = {lgb}")
+    print(f"  g2            = {g2}")
     print(f"  selfinteraction (mu) = {selfinteraction}")
     print(f"  gauge (a, b)  = ({a_mg}, {b_mg})")
     print(f"  perturbation  = {perturbation},  width = {width}")
@@ -118,7 +120,7 @@ def run_simulation(args):
     print(f"Grid: {grid.r.size} points,  r in [{grid.r[0]:.4f}, {grid.r[-1]:.1f}]")
 
     # ── Initial data ─────────────────────────────────────────────────────
-    params = (lgb, a_mg, b_mg, chi0, coupling)
+    params = (lgb, a_mg, b_mg, chi0, coupling, g2)
     initial_state = get_initial_state(
         grid, bg, params, matter, perturbation, width, scalar_mu, u_val, v_val
     )
@@ -132,7 +134,7 @@ def run_simulation(args):
             get_rhs,
             [0, T],
             initial_state,
-            args=(grid, bg, matter, pbar, [0, T / 1000], a_mg, b_mg, lgb, coupling),
+            args=(grid, bg, matter, pbar, [0, T / 1000], a_mg, b_mg, lgb, coupling, g2),
             max_step=0.4 * min_dr,
             method="RK45",
             dense_output=True,
@@ -164,7 +166,7 @@ def run_simulation(args):
 
     # ── Save run metadata ────────────────────────────────────────────────
     meta = dict(
-        lambda_gb=lgb, selfinteraction=selfinteraction,
+        lambda_gb=lgb, g2=g2, selfinteraction=selfinteraction,
         a_mg=a_mg, b_mg=b_mg, chi0=chi0, coupling=coupling,
         perturbation=perturbation, width=width,
         T=T, num_points_t=num_points_t,
@@ -212,6 +214,8 @@ def parse_args():
                    help="Modified gauge parameter b (default: 0.4)")
     p.add_argument("--chi0", type=float, default=0.15,
                    help="chi0 parameter (default: 0.15)")
+    p.add_argument("--g2", type=float, default=0.0,
+                   help="EFT g2 coupling constant (default: 0.0)")
     p.add_argument("--coupling", type=str, default="quadratic",
                    help="Coupling type (default: quadratic)")
     p.add_argument("--perturbation", type=float, default=-2e-2,

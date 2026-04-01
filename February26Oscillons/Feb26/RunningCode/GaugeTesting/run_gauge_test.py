@@ -94,6 +94,7 @@ def run_simulation(args):
     min_dr = args.min_dr
     max_dr = args.max_dr
     lgb = args.lambda_gb
+    g2 = args.g2
 
     tag = build_run_tag(gauge_type, eta, lgb, selfinteraction, a_mg, b_mg,
                         perturbation, width, min_dr, max_dr, coupling, spacing_type,
@@ -112,6 +113,7 @@ def run_simulation(args):
     print(f"  gauge_type    = {gauge_type}")
     print(f"  eta           = {eta}")
     print(f"  lambda_GB     = {lgb}")
+    print(f"  g2            = {g2}")
     print(f"  selfinteraction (mu) = {selfinteraction}")
     print(f"  gauge (a, b)  = ({a_mg}, {b_mg})")
     print(f"  perturbation  = {perturbation},  width = {width}")
@@ -142,7 +144,7 @@ def run_simulation(args):
     print(f"Grid: {grid.r.size} points,  r in [{grid.r[0]:.4f}, {grid.r[-1]:.1f}]")
     print(f"  actual min_dr = {actual_min_dr:.6f},  max_step = {0.4 * actual_min_dr:.6f}")
 
-    params = (lgb, a_mg, b_mg, chi0, coupling)
+    params = (lgb, a_mg, b_mg, chi0, coupling, g2)
     initial_state = get_initial_state(
         grid, bg, params, matter, perturbation, width, scalar_mu, u_val, v_val
     )
@@ -156,7 +158,7 @@ def run_simulation(args):
             [0, T],
             initial_state,
             args=(grid, bg, matter, pbar, [0, T / 1000],
-                  a_mg, b_mg, lgb, coupling, gauge_type, eta),
+                  a_mg, b_mg, lgb, coupling, g2, gauge_type, eta),
             max_step=0.4 * actual_min_dr,
             method="RK45",
             dense_output=True,
@@ -187,7 +189,7 @@ def run_simulation(args):
     meta = dict(
         gauge_type=gauge_type, eta=eta, spacing_type=spacing_type,
         sinh_a=sinh_a if sinh_a is not None else -1.0,
-        lambda_gb=lgb, selfinteraction=selfinteraction,
+        lambda_gb=lgb, g2=g2, selfinteraction=selfinteraction,
         a_mg=a_mg, b_mg=b_mg, chi0=chi0, coupling=coupling,
         perturbation=perturbation, width=width,
         T=T, num_points_t=num_points_t,
@@ -238,6 +240,8 @@ def parse_args():
                    help="Modified gauge parameter b (default: 0.4)")
     p.add_argument("--chi0", type=float, default=0.15,
                    help="chi0 parameter (default: 0.15)")
+    p.add_argument("--g2", type=float, default=0.0,
+                   help="EFT g2 coupling constant (default: 0.0)")
     p.add_argument("--coupling", type=str, default="quadratic",
                    help="Coupling type (default: quadratic)")
     p.add_argument("--perturbation", type=float, default=-2e-2,

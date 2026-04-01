@@ -94,7 +94,7 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         u_bar      – volume-averaged scalar field
         Asq_c      – central A_ij A^ij  (GW energy density proxy)
     """
-    lambda_GB, a_mg, b_mg, chi0, coupling = params
+    lambda_GB, a_mg, b_mg, chi0, coupling, g2 = params
 
     r = grid.r
     N = grid.num_points
@@ -139,7 +139,7 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
             get_gb_core(gb, r, bssn_N, d1, d2, grid, background,
                         lambda_GB, chi0)
             get_esgb_br_terms(gb, r, matter, bssn_N, d1, d2, grid,
-                              background, lambda_GB, chi0, coupling)
+                              background, lambda_GB, chi0, coupling, g2)
 
         # ── Energy-momentum tensor ──────────────────────────────────────
         emtensor = matter.get_emtensor(r, bssn_N, background, gb)

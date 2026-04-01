@@ -89,6 +89,7 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     Vt         = gb.Vt
     Sigma      = gb.Sigma
     iSigma     = 1/Sigma
+    quadratic  = gb.quadratic
     
     ####################################################################################################
     # Importing EM tensor (which already holds the backreaction corrections in rho and S_L #############
@@ -339,9 +340,9 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
 
     Y_K = (1+(2*eight_pi_G/3)*(4* iSigma * d1Lambdadu*d1Lambdadu* Trace_M * Trace_M - Trace_Omega))
 
-    X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
+    X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * iSigma[:,np.newaxis, np.newaxis] *  d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
 
-    Y_Pi = (four_thirds) * d1Lambdadu * Trace_M
+    Y_Pi = (four_thirds) * iSigma * d1Lambdadu * Trace_M
 
    # the RHS (Added the GB backreaction corrections here)
     Z_A_LL = (background.scaling_matrix * dadt 
@@ -363,15 +364,13 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
                  +                         em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, d1.lapse, d1_u)
                  -       bssn_vars.lapse * em4phi * np.einsum('xij,xkij,xk->x', bar_gamma_UU, bar_chris, d1_u)) 
                  
-                 - bssn_vars.lapse * matter.dVdu(u)
+                 - bssn_vars.lapse * (-quadratic)# matter.dVdu(u) 
 
-                 + bssn_vars.lapse * d1Lambdadu * (bar_L_GB ) #+ perp_L_GB)) 
-                 # extra g2 terms
-                 - g2* bssn_vars.lapse * bssn_vars.K * v * Vt
-                 # Missing advection term (which is included in scalarmatter_MG)
-                 + g2 * bssn_vars.lapse * Vt *chi*(-2 * np.einsum("xij, xj, xi->x", bar_gamma_UU, d1.phi, d1_u) - np.einsum("xij, xij->x",bar_gamma_UU, d2_u))
-                 + g2 * bssn_vars.lapse * chi * Vt * np.einsum("xij, xkij, xk->x",bar_gamma_UU, bar_chris, d1_u)
-                 + g2 * chi * np.einsum("xij, xi, xj->x",bar_gamma_UU, d1.lapse, d1_u)*(2*v*v - Vt))
+                 + bssn_vars.lapse * d1Lambdadu * (bar_L_GB )*iSigma) #+ perp_L_GB))  # SHOULD BE DIVIDED ))
+
+
+
+                 
     
     ######## Debugging ################ Debugging ########
     # While taking M= unit matrix 
@@ -412,7 +411,7 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     M[:,3,1] = X_Pi_UU[:,it,it] + X_Pi_UU[:,ip,ip]
     M[:,3,2] = Y_Pi
     #M[:,3,3] = 1.0 #(Without g2 correction)
-    M[:,3,3] = Sigma
+    M[:,3,3] = 1#Sigma
 
     ######## Debugging ################ Debugging ########
     ######## Debugging ################ Debugging ########

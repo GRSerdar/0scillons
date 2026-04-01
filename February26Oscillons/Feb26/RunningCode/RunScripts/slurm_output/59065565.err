@@ -1,0 +1,15 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) cluster/genius/batch_long
+Traceback (most recent call last):
+  File "/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/RunningCode/RunScripts/run_oscillon.py", line 29, in <module>
+    from core.rhsevolution_MG import get_rhs
+  File "/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py", line 10, in <module>
+    from bssn.bssnrhs_MG import *
+  File "/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py", line 9, in <module>
+    from bssn.ModifiedGravity import * 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py", line 3, in <module>
+    from February26Oscillons.Feb26.RunningCode.DATA.compare_aligned import phi
+ModuleNotFoundError: No module named 'February26Oscillons'

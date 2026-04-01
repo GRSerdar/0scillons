@@ -1,0 +1,23 @@
+SLURM_JOB_ID: 59065563
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: lgb1_g2_0.01
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i27n01
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Wed Apr  1 14:08:42 CEST 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59065563
+  Node      : r25i27n01
+  lambda_GB : 1
+  g2        : 0.01
+  a_mg, b_mg: 0, 0
+  coupling  : quadratic
+  T         : 800
+  Started   : Wed Apr  1 14:09:07 CEST 2026
+========================================================
+Finished: Wed Apr  1 14:09:08 CEST 2026

@@ -47,7 +47,7 @@ class CTTKBHConstraintSolver :
         
         # Modified gravity objects
         self.gb_vars = GBVars(N)
-        self.lambda_GB, self.a, self.b, self.chi0, self.coupling = parameters
+        self.lambda_GB, self.a, self.b, self.chi0, self.coupling, self.g2 = parameters
 
         # Set up the solver uniform grid
         self.r = a_r
@@ -184,7 +184,7 @@ class CTTKBHConstraintSolver :
                 lambda_GB=self.lambda_GB, chi0=self.chi0)
         
         get_esgb_br_terms(self.gb_vars, grid.r , scalar_matter, bssn_vars, d1, d2, grid,
-                      background, lambda_GB=self.lambda_GB, chi0=self.chi0, coupling=self.coupling)
+                      background, lambda_GB=self.lambda_GB, chi0=self.chi0, coupling=self.coupling, g2=self.g2)
 
         # Calculate the necessary MG terms:
         rho_GB_r = self.gb_vars.rho_GB                     

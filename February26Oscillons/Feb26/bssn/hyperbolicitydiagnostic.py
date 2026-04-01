@@ -88,7 +88,7 @@ def get_hyperbolicity_diagnostic(states_over_time, t, grid, background,
         ``ratio_36``   — Eq. (36) ratio; ``>1`` sufficient for NER
         ``theta_plus`` — outgoing null expansion (AH at θ₊ = 0)
     """
-    lambda_GB, a_mg, b_mg, chi0, coupling = params
+    lambda_GB, a_mg, b_mg, chi0, coupling, g2 = params
     ell_sq = lambda_GB                       # ℓ²
 
     r_coord = grid.r
@@ -119,7 +119,7 @@ def get_hyperbolicity_diagnostic(states_over_time, t, grid, background,
             get_gb_core(gb, r_coord, bssn, d1, d2, grid, background,
                         lambda_GB, chi0)
             get_esgb_br_terms(gb, r_coord, matter, bssn, d1, d2, grid,
-                              background, lambda_GB, chi0, coupling)
+                              background, lambda_GB, chi0, coupling, g2)
 
         # ── Physical metric via tensor algebra helpers ─────────────
         em4phi = np.exp(-4.0 * bssn.phi)

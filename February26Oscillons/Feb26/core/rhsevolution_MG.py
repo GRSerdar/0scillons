@@ -13,7 +13,7 @@ from bssn.ModifiedGravity import GBVars, get_gb_core, get_esgb_br_terms
 
 # function that returns the rhs for each of the field vars
 # see further details in https://github.com/GRChombo/engrenage/wiki/Useful-code-background
-def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, progress_bar, time_state, a,b, lambda_GB, coupling, gauge_type="modified_harmonic", eta_gauge=1.0): 
+def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, progress_bar, time_state, a,b, lambda_GB, coupling, g2=0.0, gauge_type="modified_harmonic", eta_gauge=1.0): 
     
     # Debugging
     #print("RHS called at t =", t_i, flush=True)
@@ -126,7 +126,7 @@ def get_rhs(t_i, current_state: np.ndarray, grid: Grid, background, matter, prog
     get_gb_core(gb, r, bssn_vars, d1, d2, grid, background, lambda_GB, chi0)
 
     # Adding the back reaction correction terms
-    get_esgb_br_terms(gb, r, matter, bssn_vars, d1, d2, grid, background, lambda_GB, chi0, coupling)
+    get_esgb_br_terms(gb, r, matter, bssn_vars, d1, d2, grid, background, lambda_GB, chi0, coupling, g2)
 
     # (2) Calculating the EM tensor projections
     EMtensor = matter.get_emtensor(r, bssn_vars, background, gb)

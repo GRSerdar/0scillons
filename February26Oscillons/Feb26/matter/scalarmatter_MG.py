@@ -113,26 +113,12 @@ class ScalarMatter :
         The rest of the code goes back to standard GR
         """        
         assert self.matter_vars_set, 'Matter vars not set'    
-
-        # We rebuilt Sigma in here to not have to import anything new
-        """
-        g2 = 0.1
-        em4phi = np.exp(-4.0 * bssn_vars.phi)
-
-        #Extra objects needed to define Vt (to take care of the advection in the corrections due to adding g2 term)
-        bar_gamma_UU = get_bar_gamma_UU(r, bssn_vars.h_LL, background)
-        gamma_UU = em4phi[:,np.newaxis, np.newaxis] * bar_gamma_UU
-
-        #Definition of Vt and Sigma
-        Vt = (-(self.v)*(self.v) + np.einsum("xij, xi, xj->x",gamma_UU,self.d1_u,self.d1_u)) 
-        Sigma = (1+ g2*(2*self.v * self.v - Vt))
-        """
         
         dudt, dvdt = scalar_tuple
         
         # Now advection
         dudt   += np.einsum('xj,xj->x', background.inverse_scaling_vector * bssn_vars.shift_U,   self.advec_u)
-        dvdt   += np.einsum('xj,xj->x', background.inverse_scaling_vector * bssn_vars.shift_U,   self.advec_v) #* Sigma #does it really need to be there ? 
+        dvdt   += np.einsum('xj,xj->x', background.inverse_scaling_vector * bssn_vars.shift_U,   self.advec_v) #does not need *Sigma, Since advection is taken after matrix inversion
 
         return dudt, dvdt
     

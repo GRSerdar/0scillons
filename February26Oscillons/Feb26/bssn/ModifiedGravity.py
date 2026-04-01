@@ -228,7 +228,7 @@ def get_gb_core(gb_vars: GBVars, r, bssn_vars, d1, d2, grid, background,lambda_G
 # ESGB backreaction terms
 # ------------------------------------------------------------
 def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, background,
-                      lambda_GB, chi0, coupling):
+                      lambda_GB, chi0, coupling, g2=0.0):
     """
     Calculates all backreacdtion contributions 
     The barred variables in this function like bar_F, bar_F_LL, bar_S_GB and bar_S_GB_LL do not mean conformal contractions
@@ -378,7 +378,6 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
                                                                                       - ilapse[:,np.newaxis,np.newaxis] * div_shift[:,np.newaxis,np.newaxis]) * bar_A_LL))
 
     ########################## Extra objects needed for the g2 term ##########################
-    g2 = 0.1
 
     # useful object
     Vt = (-(matter.v)*(matter.v) + np.einsum("xij, xi, xj->x",gamma_UU,matter.d1_u,matter.d1_u)) 
@@ -396,7 +395,7 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     #\partial^i\phi \partial^j\phi
     d_u_phi_d_u_phi = np.einsum("xik, xjl, xk, xl->xij",bar_gamma_UU, bar_gamma_UU, matter.d1_u, matter.d1_u)
 
-    quadratic = (d1Lambdadu/ Sigma) * (- matter.dVdu(matter.u) - 2*g2* matter.v * matter.v * matter.v * bssn_vars.K
+    quadratic = (1/ Sigma) * (- matter.dVdu(matter.u) - 2*g2* matter.v * matter.v * matter.v * bssn_vars.K
                                        + 2*g2* matter.v* matter.v * (-2*chi*np.einsum("xij, xj, xi->x",bar_gamma_UU, d1.phi, matter.d1_u) - chi*np.einsum("xij, xij->x",bar_gamma_UU, matter.d2_u))
                                        + 2*g2* matter.v* matter.v * np.einsum("xij, xkij, xk->x",gamma_UU, bar_chris, matter.d1_u)
                                        + two_thirds * g2 * matter.v * bssn_vars.K * (Vt+ matter.v *matter.v)
@@ -419,7 +418,7 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
                                                 - 4*d2Lambdadduu[:,np.newaxis, np.newaxis]* (-(matter.v[:,np.newaxis, np.newaxis])*(matter.v[:,np.newaxis, np.newaxis]) 
                                                                                              + np.einsum("xij, xi, xj->x",gamma_UU,matter.d1_u,matter.d1_u)[:,np.newaxis, np.newaxis]) 
                                                 #- 4 * matter.dVdu(matter.u)[:,np.newaxis, np.newaxis] * d1Lambdadu[:,np.newaxis, np.newaxis]) #This is the old term without term without g2 into account.
-                                                +4 * quadratic[:,np.newaxis, np.newaxis])
+                                                +4 * d1Lambdadu[:,np.newaxis, np.newaxis] * quadratic[:,np.newaxis, np.newaxis])
                             -  two_thirds * Trace_Omega[:,np.newaxis, np.newaxis]*(bar_F_LL - one_third * gamma_LL*(ilapse[:,np.newaxis, np.newaxis] * D2_lapse[:,np.newaxis, np.newaxis] 
                                                                                                                     - Asquared[:,np.newaxis, np.newaxis]))
                             +  2 * (  np.einsum("xi, xj->xij",N_L, Omega_L) 
@@ -441,7 +440,7 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     bar_S_GB = (four_thirds * Trace_Omega * bar_F
                 + 4 * Trace_M * (- d2Lambdadduu* (- (matter.v)*(matter.v) + (np.einsum("xij, xi, xj->x",gamma_UU, matter.d1_u, matter.d1_u)))
                                     #- d1Lambdadu * matter.dVdu(matter.u) #old term without g2 corrections
-                                    + quadratic
+                                    + d1Lambdadu * quadratic
                                     + one_third * Trace_Omega)
                 - rho_GB
                 - 2 * (np.einsum("xij, xij->x",TF_Omega_UU, M_LL) + np.einsum("xij, xij->x", TF_Omega_UU, bar_F_LL))
