@@ -1,44 +1,0 @@
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
-
-  1) cluster/genius/batch_long
-  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 1/1000 [00:09<01:42,  9.79‰/s]  0%|          | 2/1000 [00:19<1:36:34,  5.81s/‰]  0%|          | 3/1000 [00:29<2:06:13,  7.60s/‰]  0%|          | 4/1000 [00:40<2:28:28,  8.94s/‰]  0%|          | 4/1000 [03:35<14:52:45, 53.78s/‰]
-Traceback (most recent call last):
-  File "/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/RunningCode/RunScripts/run_oscillon.py", line 226, in <module>
-    run_simulation(parse_args())
-  File "/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/RunningCode/RunScripts/run_oscillon.py", line 127, in run_simulation
-    dense_sol = solve_ivp(
-                ^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/ivp.py", line 655, in solve_ivp
-    message = solver.step()
-              ^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/base.py", line 197, in step
-    success, message = self._step_impl()
-                       ^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/rk.py", line 144, in _step_impl
-    y_new, f_new = rk_step(self.fun, t, y, self.f, h, self.A,
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/rk.py", line 64, in rk_step
-    K[s] = fun(t + c * h, y + dy)
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/base.py", line 154, in fun
-    return self.fun_single(t, y)
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/base.py", line 23, in fun_wrapped
-    return np.asarray(fun(t, y), dtype=dtype)
-                      ^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/scipy/integrate/_ivp/ivp.py", line 593, in fun
-    return fun(t, x, *args)
-           ^^^^^^^^^^^^^^^^
-  File "/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py", line 139, in get_rhs
-    scalar_tuple = get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, gauge_coefficients, EMtensor)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py", line 388, in get_bssn_rhs
-    dU = np.linalg.solve(M, Z)[...,0]  # usual solve
-         ^^^^^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/numpy/linalg/linalg.py", line 409, in solve
-    r = gufunc(a, b, signature=signature, extobj=extobj)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/numpy/linalg/linalg.py", line 112, in _raise_linalgerror_singular
-    raise LinAlgError("Singular matrix")
-numpy.linalg.LinAlgError: Singular matrix

@@ -1,0 +1,28 @@
+SLURM_JOB_ID: 59069012
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: l0_g0.1
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i27n17
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Thu Apr  2 14:35:59 CEST 2026
+Walltime: 07-00:00:00
+========================================================================
+lambda_GB=0, g2=0.1, a=b=0
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 0.0
+  g2            = 0.1
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -0.02,  width = 3
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.0625, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb0.0_mu0.08_a0.0_b0.0_amp-0.02_R3_dr0.0625
+======================================================================
+Grid: 216 points,  r in [-0.1559, 150.0]
+error is:  0.009753944138166456  after iter:  14
+
+Starting integration (T = 800.0) ...

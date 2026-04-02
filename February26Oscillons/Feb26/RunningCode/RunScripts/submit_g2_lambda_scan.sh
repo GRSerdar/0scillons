@@ -32,7 +32,7 @@ echo "  Job ID    : \${SLURM_JOB_ID}"
 echo "  Node      : \$(hostname)"
 echo "  lambda_GB : ${LGB}"
 echo "  g2        : ${G2}"
-echo "  a_mg, b_mg: 0, 0"
+echo "  a_mg, b_mg: 0.2, 0.4"
 echo "  coupling  : quadratic"
 echo "  T         : 800"
 echo "  Started   : \$(date)"
@@ -40,8 +40,8 @@ echo "========================================================"
 
 python3 "${SCRIPT_DIR}/run_oscillon.py" \
     --lambda_gb=${LGB} \
-    --a_mg=0 \
-    --b_mg=0 \
+    --a_mg=0.2 \
+    --b_mg=0.4 \
     --g2=${G2} \
     --coupling=quadratic \
     --T=800 \

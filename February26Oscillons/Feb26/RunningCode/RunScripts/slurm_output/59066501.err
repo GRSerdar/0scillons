@@ -1,0 +1,61 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) cluster/genius/batch_long
+  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:10<?, ?‰/s]  0%|          | 0/1000 [00:10<?, ?‰/s]  0%|          | 1/1000 [00:10<01:45,  9.44‰/s]  0%|          | 2/1000 [00:20<1:40:25,  6.04s/‰]  0%|          | 3/1000 [00:30<2:11:34,  7.92s/‰]  0%|          | 4/1000 [00:40<2:25:27,  8.76s/‰]  0%|          | 5/1000 [00:50<2:32:46,  9.21s/‰]  1%|          | 6/1000 [01:00<2:36:38,  9.46s/‰]  1%|          | 7/1000 [01:10<2:39:39,  9.65s/‰]  1%|          | 8/1000 [01:20<2:41:36,  9.77s/‰]  1%|          | 9/1000 [01:30<2:43:15,  9.88s/‰]  1%|          | 10/1000 [01:40<2:44:44,  9.98s/‰]  1%|          | 11/1000 [01:51<2:45:34, 10.04s/‰]  1%|          | 12/1000 [02:01<2:46:16, 10.10s/‰]  1%|▏         | 13/1000 [02:11<2:46:43, 10.13s/‰]  1%|▏         | 14/1000 [02:21<2:46:42, 10.14s/‰]  2%|▏         | 15/1000 [02:31<2:46:27, 10.14s/‰]  2%|▏         | 16/1000 [02:41<2:45:19, 10.08s/‰]  2%|▏         | 17/1000 [02:51<2:44:27, 10.04s/‰]  2%|▏         | 18/1000 [03:01<2:43:50, 10.01s/‰]  2%|▏         | 19/1000 [03:11<2:43:29, 10.00s/‰]  2%|▏         | 20/1000 [03:21<2:43:27, 10.01s/‰]  2%|▏         | 21/1000 [03:31<2:43:20, 10.01s/‰]  2%|▏         | 22/1000 [03:41<2:42:56, 10.00s/‰]  2%|▏         | 23/1000 [03:51<2:42:48, 10.00s/‰]  2%|▏         | 24/1000 [04:01<2:43:11, 10.03s/‰]  2%|▎         | 25/1000 [04:11<2:42:34, 10.00s/‰]  3%|▎         | 26/1000 [04:21<2:42:05,  9.99s/‰]/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:101: RuntimeWarning: overflow encountered in exp
+  em4phi = np.exp(-4.0*bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:106: RuntimeWarning: invalid value encountered in multiply
+  gamma_UU = em4phi[:,np.newaxis,np.newaxis] *bar_gamma_UU
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:72: RuntimeWarning: overflow encountered in exp
+  em4phi = np.exp(-4.0 * bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:81: RuntimeWarning: invalid value encountered in multiply
+  gamma_UU = em4phi[:,np.newaxis,np.newaxis] *bar_gamma_UU
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:145: RuntimeWarning: invalid value encountered in multiply
+  D2_lapse = em4phi*(np.einsum('xij,xij->x', bar_gamma_UU, d2.lapse)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:261: RuntimeWarning: overflow encountered in exp
+  em4phi = np.exp(-4.0*bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:318: RuntimeWarning: invalid value encountered in multiply
+  D2_lapse = em4phi * (np.einsum('xij,xij->x', bar_gamma_UU, d2.lapse)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:388: RuntimeWarning: invalid value encountered in multiply
+  Box_LL = (chi[:,np.newaxis,np.newaxis]*(matter.d2_u - np.einsum("xmij, xm->xij", bar_chris, matter.d1_u))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:389: RuntimeWarning: invalid value encountered in multiply
+  - 2 *chi[:,np.newaxis,np.newaxis] * (np.einsum("xi, xj->xij",matter.d1_u, d1.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:388: RuntimeWarning: invalid value encountered in subtract
+  Box_LL = (chi[:,np.newaxis,np.newaxis]*(matter.d2_u - np.einsum("xmij, xm->xij", bar_chris, matter.d1_u))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:397: RuntimeWarning: invalid value encountered in multiply
+  + 2*g2* matter.v* matter.v * (-2*chi*np.einsum("xij, xj, xi->x",bar_gamma_UU, d1.phi, matter.d1_u) - chi*np.einsum("xij, xij->x",bar_gamma_UU, matter.d2_u))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:401: RuntimeWarning: invalid value encountered in multiply
+  + 2* g2 * chi * (matter.v * np.einsum("xij, xij->x",d_u_phi_d_u_phi, bar_A_LL) - np.einsum("xij, xij->x",d_u_phi_d_u_phi, Box_LL)))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:420: RuntimeWarning: invalid value encountered in multiply
+  -  two_thirds * Trace_Omega[:,np.newaxis, np.newaxis]*(bar_F_LL - one_third * gamma_LL*(ilapse[:,np.newaxis, np.newaxis] * D2_lapse[:,np.newaxis, np.newaxis]
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:68: RuntimeWarning: overflow encountered in exp
+  em4phi = np.exp(-4.0 * bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:80: RuntimeWarning: invalid value encountered in multiply
+  + 0.5 * em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, self.d1_u, self.d1_u)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:87: RuntimeWarning: invalid value encountered in multiply
+  Vt = - self.v * self.v + em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, self.d1_u, self.d1_u)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:90: RuntimeWarning: invalid value encountered in divide
+  scalar_factor = - ((0.5 * Vt  + self.V_of_u(self.u)) / em4phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:23: RuntimeWarning: overflow encountered in exp
+  em4phi = np.exp(-4.0*bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:31: RuntimeWarning: invalid value encountered in multiply
+  gamma_UU = em4phi[:,np.newaxis,np.newaxis] * bar_gamma_UU
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:160: RuntimeWarning: invalid value encountered in multiply
+  - em4phi * (bar_D2_lapse
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:205: RuntimeWarning: invalid value encountered in multiply
+  + em4phi[:,np.newaxis,np.newaxis] * (dadt_TF_part #- bssn_vars.lapse[:,np.newaxis,np.newaxis] * eight_pi_G #|| Don't know why this was there||
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:362: RuntimeWarning: invalid value encountered in multiply
+  + 2.0 * bssn_vars.lapse * em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, d1.phi, d1_u)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:363: RuntimeWarning: invalid value encountered in multiply
+  +       bssn_vars.lapse * em4phi * np.einsum('xij,xij->x', bar_gamma_UU, d2_u)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:364: RuntimeWarning: invalid value encountered in multiply
+  +                         em4phi * np.einsum('xij,xi,xj->x', bar_gamma_UU, d1.lapse, d1_u)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:361: RuntimeWarning: invalid value encountered in add
+  dvdt =  ((bssn_vars.lapse * bssn_vars.K * v
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:365: RuntimeWarning: invalid value encountered in multiply
+  -       bssn_vars.lapse * em4phi * np.einsum('xij,xkij,xk->x', bar_gamma_UU, bar_chris, d1_u))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:239: RuntimeWarning: overflow encountered in exp
+  sigma = 1.0 * bssn_vars.lapse * np.exp(-2.0*bssn_vars.phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:241: RuntimeWarning: invalid value encountered in multiply
+  diss = sigma * grid.get_kreiss_oliger_diss(unflattened_state)
+  3%|▎         | 26/1000 [04:56<3:05:05, 11.40s/‰]

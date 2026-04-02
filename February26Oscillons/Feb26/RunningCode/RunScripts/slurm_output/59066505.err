@@ -1,0 +1,41 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) cluster/genius/batch_long
+  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 1/1000 [00:09<02:22,  6.99‰/s]  0%|          | 2/1000 [00:18<1:31:17,  5.49s/‰]  0%|          | 3/1000 [00:27<1:58:33,  7.14s/‰]  0%|          | 4/1000 [00:36<2:11:18,  7.91s/‰]  0%|          | 5/1000 [00:45<2:18:13,  8.34s/‰]  1%|          | 6/1000 [00:54<2:21:49,  8.56s/‰]  1%|          | 7/1000 [01:03<2:24:42,  8.74s/‰]  1%|          | 8/1000 [01:13<2:26:38,  8.87s/‰]  1%|          | 9/1000 [01:22<2:27:52,  8.95s/‰]  1%|          | 10/1000 [01:31<2:28:38,  9.01s/‰]  1%|          | 11/1000 [01:40<2:29:08,  9.05s/‰]  1%|          | 12/1000 [01:49<2:29:27,  9.08s/‰]  1%|▏         | 13/1000 [01:58<2:29:37,  9.10s/‰]  1%|▏         | 14/1000 [02:07<2:29:42,  9.11s/‰]  2%|▏         | 15/1000 [02:17<2:29:42,  9.12s/‰]  2%|▏         | 16/1000 [02:26<2:29:41,  9.13s/‰]  2%|▏         | 17/1000 [02:35<2:29:35,  9.13s/‰]  2%|▏         | 18/1000 [02:44<2:29:45,  9.15s/‰]  2%|▏         | 19/1000 [02:53<2:29:41,  9.16s/‰]  2%|▏         | 20/1000 [03:02<2:29:29,  9.15s/‰]  2%|▏         | 21/1000 [03:11<2:29:15,  9.15s/‰]  2%|▏         | 22/1000 [03:21<2:29:03,  9.14s/‰]  2%|▏         | 23/1000 [03:30<2:28:51,  9.14s/‰]  2%|▏         | 24/1000 [03:39<2:29:12,  9.17s/‰]  2%|▎         | 25/1000 [03:48<2:28:53,  9.16s/‰]  3%|▎         | 26/1000 [03:57<2:28:38,  9.16s/‰]/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:73: RuntimeWarning: divide by zero encountered in divide
+  e4phi  = 1.0/em4phi
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:82: RuntimeWarning: invalid value encountered in multiply
+  gamma_LL = e4phi[:,np.newaxis,np.newaxis] * bar_gamma_LL
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:127: RuntimeWarning: invalid value encountered in multiply
+  + e4phi[:, np.newaxis, np.newaxis] *(two_nine * bar_gamma_LL* bssn_vars.K[:, np.newaxis, np.newaxis] * bssn_vars.K[:, np.newaxis, np.newaxis]
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:180: RuntimeWarning: invalid value encountered in multiply
+  D_L_A_LL = e4phi[:, np.newaxis, np.newaxis, np.newaxis]*(  a_times_d1_s
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:262: RuntimeWarning: divide by zero encountered in divide
+  e4phi  = 1.0/em4phi
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:337: RuntimeWarning: invalid value encountered in multiply
+  D_L_A_LL = e4phi[:, np.newaxis, np.newaxis, np.newaxis]*(  a_times_d1_s
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:355: RuntimeWarning: invalid value encountered in multiply
+  (DiDj_u + e4phi[:,np.newaxis,np.newaxis] * matter.v[:,np.newaxis,np.newaxis] * (bar_A_LL + bar_gamma_LL * one_third * bssn_vars.K[:,np.newaxis,np.newaxis]))
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:354: RuntimeWarning: invalid value encountered in multiply
+  Omega_LL = ( 4 * d1Lambdadu[:,np.newaxis, np.newaxis] *
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:375: RuntimeWarning: invalid value encountered in multiply
+  + e4phi[:,np.newaxis,np.newaxis] * (bar_A_LL_A_UL - two_thirds * (bssn_vars.K[:,np.newaxis,np.newaxis]
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:420: RuntimeWarning: invalid value encountered in subtract
+  -  two_thirds * Trace_Omega[:,np.newaxis, np.newaxis]*(bar_F_LL - one_third * gamma_LL*(ilapse[:,np.newaxis, np.newaxis] * D2_lapse[:,np.newaxis, np.newaxis]
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:69: RuntimeWarning: divide by zero encountered in divide
+  e4phi = 1/em4phi
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:90: RuntimeWarning: divide by zero encountered in divide
+  scalar_factor = - ((0.5 * Vt  + self.V_of_u(self.u)) / em4phi)
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:91: RuntimeWarning: invalid value encountered in multiply
+  scalar_emtensor.Sij = (scalar_factor[:,np.newaxis,np.newaxis] * bar_gamma_LL
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:25: RuntimeWarning: divide by zero encountered in divide
+  e4phi  = 1.0/em4phi
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:32: RuntimeWarning: invalid value encountered in multiply
+  gamma_LL = e4phi [:,np.newaxis,np.newaxis] * bar_gamma_LL
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:338: RuntimeWarning: divide by zero encountered in divide
+  X_K_UU = (eight_pi_G/ em4phi[:,np.newaxis, np.newaxis]) * (TraceFree_Omega_UU
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:343: RuntimeWarning: divide by zero encountered in divide
+  X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * iSigma[:,np.newaxis, np.newaxis] *  d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
+/user/leuven/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:343: RuntimeWarning: invalid value encountered in multiply
+  X_Pi_UU = -(8/em4phi[:,np.newaxis, np.newaxis]) * iSigma[:,np.newaxis, np.newaxis] *  d1Lambdadu[:,np.newaxis, np.newaxis] * TraceFree_M_UU
+  3%|▎         | 26/1000 [04:28<2:47:29, 10.32s/‰]

@@ -1,0 +1,46 @@
+SLURM_JOB_ID: 59066498
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: lgb1_g2_0.0001
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i27n01
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Wed Apr  1 18:01:42 CEST 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59066498
+  Node      : r25i27n01
+  lambda_GB : 1
+  g2        : 0.0001
+  a_mg, b_mg: 0.2, 0.4
+  coupling  : quadratic
+  T         : 800
+  Started   : Wed Apr  1 18:02:28 CEST 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = 1.0
+  g2            = 0.0001
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.2, 0.4)
+  perturbation  = -0.02,  width = 3
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.0625, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb1.0_mu0.08_a0.2_b0.4_amp-0.02_R3_dr0.0625
+======================================================================
+Grid: 216 points,  r in [-0.1559, 150.0]
+error is:  0.009753944138166456  after iter:  14
+
+Starting integration (T = 800.0) ...
+Integration finished in 0.11 h  (status: Required step size is less than spacing between numbers.)
+WARNING: solver failed at t ≈ 20.9561 — Required step size is less than spacing between numbers.
+  Saving partial data up to t = 20.9561
+Saved solution: shape (27, 3024)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb1.0_mu0.08_a0.2_b0.4_amp-0.02_R3_dr0.0625
+Computing oscillon diagnostics ...
+  max compactness C = 4.439620e+00
+Done.
+
+Finished: Wed Apr  1 18:09:00 CEST 2026

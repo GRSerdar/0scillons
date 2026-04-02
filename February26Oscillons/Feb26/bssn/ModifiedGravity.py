@@ -1,7 +1,5 @@
 # ModifiedGravity.py 
 
-from February26Oscillons.Feb26.RunningCode.DATA.compare_aligned import phi
-from February26Oscillons.Feb26.bssn import bssnvars
 import numpy as np
 
 from core.grid import *
@@ -387,8 +385,8 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     
     # This one is called covd2phi_times_chi[k][l] in GRFolres
     # Remember that \partial_i \chi = -4\chi \partial_i \phi (where \phi is the comformal factor and not the scalar field u)
-    Box_LL = (chi*(matter.d2_u - np.einsum("xmij, xm->xij", bar_chris, matter.d1_u))
-              - 2 *chi * (np.einsum("xi, xj->xij",matter.d1_u, d1.phi)
+    Box_LL = (chi[:,np.newaxis,np.newaxis]*(matter.d2_u - np.einsum("xmij, xm->xij", bar_chris, matter.d1_u))
+              - 2 *chi[:,np.newaxis,np.newaxis] * (np.einsum("xi, xj->xij",matter.d1_u, d1.phi)
                           + np.einsum("xi, xj->xij", d1.phi, matter.d1_u)
                           - np.einsum("xij, xd, xdk, xk->xij",bar_gamma_LL, matter.d1_u, bar_gamma_UU, d1.phi)))
 
@@ -467,4 +465,4 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
 
     # Do we need to store these ?
     #gb_vars.Box_LL[:]               = Box_LL
-    #gb_vars.quadratic[:]            = quadratic
+    gb_vars.quadratic[:]            = quadratic

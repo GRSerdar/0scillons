@@ -1,33 +1,0 @@
-The following modules were not unloaded:
-  (Use "module --force purge" to unload all):
-
-  1) cluster/genius/batch_long
-  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:00<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:01<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:02<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:03<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:04<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:05<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:06<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:07<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:08<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 0/1000 [00:09<?, ?‰/s]  0%|          | 1/1000 [00:09<02:24,  6.91‰/s]  0%|          | 2/1000 [00:19<1:34:03,  5.65s/‰]  0%|          | 3/1000 [00:31<2:26:28,  8.81s/‰]  0%|          | 4/1000 [00:48<3:16:04, 11.81s/‰]/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:92: RuntimeWarning: invalid value encountered in power
-  rescaling_factor = np.power(determinant_bar_gamma / determinant_hat_gamma, -1./3)
-/apps/leuven/rocky8/cascadelake/2024a/software/SciPy-bundle/2024.05-gfbf-2024a/lib/python3.12/site-packages/numpy/linalg/linalg.py:2180: RuntimeWarning: invalid value encountered in det
-  r = _umath_linalg.det(a, signature=signature)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:101: RuntimeWarning: overflow encountered in exp
-  em4phi = np.exp(-4.0*bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:106: RuntimeWarning: invalid value encountered in multiply
-  gamma_UU = em4phi[:,np.newaxis,np.newaxis] *bar_gamma_UU
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:62: RuntimeWarning: overflow encountered in exp
-  em4phi = np.exp(-4.0 * bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/ModifiedGravity.py:250: RuntimeWarning: overflow encountered in exp
-  em4phi = np.exp(-4.0*bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:55: RuntimeWarning: overflow encountered in exp
-  return self.scalar_mu * self.scalar_mu * f * np.exp(u/f) * (np.exp(u/f) - 1)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:55: RuntimeWarning: overflow encountered in multiply
-  return self.scalar_mu * self.scalar_mu * f * np.exp(u/f) * (np.exp(u/f) - 1)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:68: RuntimeWarning: overflow encountered in exp
-  em4phi = np.exp(-4.0 * bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:50: RuntimeWarning: overflow encountered in exp
-  return 0.5 * (self.scalar_mu * self.scalar_mu * f * f)*(1-np.exp(u/f))**2
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/matter/scalarmatter_MG.py:50: RuntimeWarning: overflow encountered in square
-  return 0.5 * (self.scalar_mu * self.scalar_mu * f * f)*(1-np.exp(u/f))**2
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/bssn/bssnrhs_MG.py:22: RuntimeWarning: overflow encountered in exp
-  em4phi = np.exp(-4.0*bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:238: RuntimeWarning: overflow encountered in multiply
-  sigma = 1.0 * bssn_vars.lapse * np.exp(-2.0*bssn_vars.phi)
-/vsc-hard-mounts/leuven-user/384/vsc38419/0scillons/February26Oscillons/Feb26/core/rhsevolution_MG.py:240: RuntimeWarning: invalid value encountered in multiply
-  diss = sigma * grid.get_kreiss_oliger_diss(unflattened_state)
-  0%|          | 4/1000 [03:31<14:35:59, 52.77s/‰]

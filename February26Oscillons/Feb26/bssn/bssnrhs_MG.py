@@ -365,7 +365,6 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
                  -       bssn_vars.lapse * em4phi * np.einsum('xij,xkij,xk->x', bar_gamma_UU, bar_chris, d1_u)) 
                  
                  - bssn_vars.lapse * (-quadratic)# matter.dVdu(u) 
-
                  + bssn_vars.lapse * d1Lambdadu * (bar_L_GB )*iSigma) #+ perp_L_GB))  # SHOULD BE DIVIDED ))
 
 
@@ -436,7 +435,7 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     # RHS NEW
     Z[:,0,0] = Z_A_LL[:,ir,ir] - 2*Y_ij[:,ir, ir] * dThetadt
     Z[:,1,0] = Z_A_LL[:,it,it] - 2*Y_ij[:,it, it] * dThetadt
-    Z[:,2,0] = DKDT - 2*(1/Y_K) * dThetadt
+    Z[:,2,0] = DKDT - 2*(Y_K-1) * dThetadt
     Z[:,3,0] = dvdt - 2*(Y_Pi) * dThetadt
 
 
