@@ -1,16 +1,16 @@
 #!/bin/bash -l
 #
-# Submit g2 x lambda_GB scan: quadratic coupling (beta=0 => a=b=0),
-# lambda_GB in {1, 2, 3}, g2 in {0, 0.0001, 0.01, 1}, T=800
+# g2=20 lambda scan: g2=20, lambda_GB in {1..9}, coupling=quadratic_0, dr=1/24, a=b=0, T=800
 #
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "${SCRIPT_DIR}/slurm_output"
 
-for LGB in 1 2 3; do
-    for G2 in 0 0.0001 0.01 1; do
-        echo "Submitting lambda_GB=${LGB}, g2=${G2} ..."
-        sbatch <<EOF
+G2=20
+
+for LGB in 1 2 3 4 5 6 7 8 9; do
+    echo "Submitting lambda_GB=${LGB}, g2=${G2}, coupling=quadratic_0 ..."
+    sbatch <<EOF
 #!/bin/bash -l
 #SBATCH --output=${SCRIPT_DIR}/slurm_output/%j.txt
 #SBATCH -e ${SCRIPT_DIR}/slurm_output/%j.err
@@ -21,7 +21,7 @@ for LGB in 1 2 3; do
 #SBATCH --mem=16G
 #SBATCH --time=7-00:00:00
 #SBATCH --cluster=genius
-#SBATCH --job-name=lgb${LGB}_g2_${G2}
+#SBATCH --job-name=l${LGB}_g${G2}
 
 module purge
 module load SciPy-bundle/2024.05-gfbf-2024a
@@ -32,22 +32,23 @@ echo "  Job ID    : \${SLURM_JOB_ID}"
 echo "  Node      : \$(hostname)"
 echo "  lambda_GB : ${LGB}"
 echo "  g2        : ${G2}"
-echo "  a_mg, b_mg: 0.2, 0.4"
-echo "  coupling  : quadratic"
+echo "  coupling  : quadratic_0"
+echo "  a_mg, b_mg: 0, 0"
+echo "  dr        : 1/24"
 echo "  T         : 800"
 echo "  Started   : \$(date)"
 echo "========================================================"
 
 python3 "${SCRIPT_DIR}/run_oscillon.py" \
     --lambda_gb=${LGB} \
-    --a_mg=0.2 \
-    --b_mg=0.4 \
+    --a_mg=0 \
+    --b_mg=0 \
     --g2=${G2} \
-    --coupling=quadratic \
+    --coupling=quadratic_0 \
+    --min_dr=0.041666666666666664 \
     --T=800 \
     --force
 
 echo "Finished: \$(date)"
 EOF
-    done
 done

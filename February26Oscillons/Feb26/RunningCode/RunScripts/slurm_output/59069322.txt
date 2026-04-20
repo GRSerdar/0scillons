@@ -1,0 +1,12 @@
+SLURM_JOB_ID: 59069322
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: l0_g0.1_ab
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i27n07
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Thu Apr  2 16:11:37 CEST 2026
+Walltime: 07-00:00:00
+========================================================================

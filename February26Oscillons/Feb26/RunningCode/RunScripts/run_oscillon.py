@@ -49,13 +49,12 @@ TABLE_I = {
 
 
 def build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr,
-                  coupling="quadratic"):
+                  coupling="quadratic", g2=0.0):
     tag = (
-        f"lgb{lgb}_mu{selfinteraction}_a{a_mg}_b{b_mg}"
-        f"_amp{perturbation}_R{width}_dr{min_dr}"
+        f"lgb{lgb:g}_mu{selfinteraction:g}_a{a_mg:g}_b{b_mg:g}"
+        f"_amp{perturbation:g}_R{width:g}_dr{min_dr:g}"
+        f"_{coupling}_g2{g2:g}"
     )
-    if coupling != "quadratic":
-        tag += f"_{coupling}"
     return tag
 
 
@@ -88,7 +87,7 @@ def run_simulation(args):
     lgb = args.lambda_gb
     g2 = args.g2
 
-    tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr, coupling)
+    tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr, coupling, g2)
     vsc_data = os.environ.get("VSC_DATA", os.path.join(SCRIPT_DIR, "..", "DATA"))
     data_dir = os.path.join(vsc_data, "oscillon_runs", tag)
     os.makedirs(data_dir, exist_ok=True)

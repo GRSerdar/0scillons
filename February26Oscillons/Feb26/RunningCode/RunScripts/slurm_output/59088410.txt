@@ -1,0 +1,45 @@
+SLURM_JOB_ID: 59088410
+SLURM_JOB_USER: vsc38419
+SLURM_JOB_ACCOUNT: intro_vsc38419
+SLURM_JOB_NAME: l-1_g20
+SLURM_CLUSTER_NAME: genius
+SLURM_JOB_PARTITION: batch_long
+SLURM_NNODES: 1
+SLURM_NODELIST: r25i13n06
+SLURM_JOB_CPUS_PER_NODE: 4
+Date: Fri Apr 10 21:25:35 CEST 2026
+Walltime: 07-00:00:00
+========================================================================
+========================================================
+  Job ID    : 59088410
+  Node      : r25i13n06
+  lambda_GB : -1
+  g2        : 20
+  coupling  : quadratic_0
+  a_mg, b_mg: 0, 0
+  dr        : 1/24
+  T         : 800
+  Started   : Fri Apr 10 21:25:44 CEST 2026
+========================================================
+======================================================================
+Oscillon MG simulation
+  lambda_GB     = -1.0
+  g2            = 20.0
+  selfinteraction (mu) = 0.08
+  gauge (a, b)  = (0.0, 0.0)
+  perturbation  = -0.02,  width = 3
+  T = 800.0,  output points = 1000
+  Grid: r_max = 150, dr in [0.041666666666666664, 2]
+  Output dir: /data/leuven/384/vsc38419/oscillon_runs/lgb-1_mu0.08_a0_b0_amp-0.02_R3_dr0.0416667_quadratic_0_g220
+======================================================================
+Grid: 220 points,  r in [-0.1041, 150.0]
+error is:  0.009183845353543775  after iter:  17
+
+Starting integration (T = 800.0) ...
+Integration finished in 4.54 h  (status: The solver successfully reached the end of the integration interval.)
+Saved solution: shape (1000, 3080)  ->  /data/leuven/384/vsc38419/oscillon_runs/lgb-1_mu0.08_a0_b0_amp-0.02_R3_dr0.0416667_quadratic_0_g220
+Computing oscillon diagnostics ...
+  max compactness C = 4.429830e+00
+Done.
+
+Finished: Sat Apr 11 01:59:19 CEST 2026
