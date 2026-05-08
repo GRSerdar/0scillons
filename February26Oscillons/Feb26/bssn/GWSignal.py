@@ -2,35 +2,21 @@
 GWSignal.py
 
 Semi-analytical stochastic gravitational-wave (GW) spectrum from oscillons,
-following Antusch, Cefalà & Orani (arXiv:1712.03231 / Phys. Rev. D 96, 103530)
-and applied to the spherically-symmetric Einstein-scalar-Gauss-Bonnet (EsGB)
-oscillon simulations in this repository.
+following Antusch, Cefalà & Orani (arXiv:1712.03231 )
 
 Different parts of the code
-A.  Per-run parameter extraction         -> class :class:`OscillonRun`
+A.  Per-run parameter extraction         -> class :class:OscillonRun
 
-B.  Multi-oscillon GW spectrum integral  -> :func:`Omega_GW`
+B.  Multi-oscillon GW spectrum integral  -> :func:Omega_GW
 
-C.  Plotting / GR vs EsGB comparison     -> :func:`compute_and_plot`,
-                                            :func:`compare_runs`,
-                                            :func:`plot_AGW_nGW_vs_w`
+C.  Plotting / GR vs EsGB comparison     -> :func:compute_and_plot
+                                            :func:compare_runs
+                                            :func:plot_AGW_nGW_vs_w
 
-D.  Analytic scaling helpers             -> :func:`Omega_GW_amplitude_scaling`,
-                                            :func:`Omega_GW_asymmetry_scaling`,
-                                            :func:`Omega_GW_N_scaling`,
-                                            :func:`AGW_of_w`, :func:`nGW_of_w`
-
-Equation of state
------------------
-The GW pipeline **hard-codes** ``w = 0`` (matter domination) for any
-coherently oscillating scalar field in a quadratic-near-minimum potential
-(Aurrekoetxea, Clough & Muia 2023, arXiv:2304.01673, this exact potential).
-``w`` is therefore *not* fitted from each simulation. The standalone
-diagnostic :func:`check_equation_of_state` measures ``w_eff`` from
-``H(a) = -<K>/3`` averaged over several oscillation cycles and prints a
-warning if ``|w_eff| > 0.05``. Its result is purely informational and is
-**not** fed into :func:`Omega_GW` unless you pass ``w=...`` explicitly.
-
+D.  Analytic scaling helpers             -> :func:Omega_GW_amplitude_scaling
+                                            :func:Omega_GW_asymmetry_scaling
+                                            :func:Omega_GW_N_scaling
+                                            :func:AGW_of_w, :func:nGW_of_w
 ###########
 Units
 ###########
@@ -39,18 +25,6 @@ Units
 m_inflaton = scalar_mu = 1
 Code Time =  units of 1/m and 
 frequencies = units of m
-
-Equations referenced from paper 
--------------------------------
-* Eq. 3.10 - TT-projected source for one asymmetric oscillon
-* Eq. 3.11 - polarisation tensor f_ij(k)
-* Eq. 3.17 - multi-oscillon source
-* Eq. 3.18 - GW power spectrum Omega_GW(k)
-* Eqs. 3.19-3.20 - angular discretisation of the d Omega integral
-* Eq. 4.5  - minimum oscillon separation d_min >= 4 R
-* Eq. 4.13 - background scale factor a(t) for arbitrary equation of state w
-* Eq. 4.15 - Omega_GW(k) ~ A_GW (k/omega_s)^{n_GW} fit
-* Eq. 4.18-4.21 - analytic A_GW(w), n_GW(w) fits
 """
 
 import os
@@ -122,23 +96,8 @@ DEFAULT_ESGB_TAG = "lgb1.0_mu0.08_a0.0_b0.0_amp-0.02_R3.0_dr0.041666666666666664
 
 @dataclass
 class OscillonRun:
-    """Loader + parameter extractor for a single simulation directory.
-
-    The class is *lazy* in the sense that the heavy ``solution.npy`` array is
-    only loaded once :pyattr:`u_r0_t` (or any quantity derived from it) is
-    requested.  All five paper parameters (``A``, ``R``, ``omega_source``,
-    ``w``, ``H0``) are computed on demand inside :meth:`extract_all` and cached.
-
-    Parameters
-    ----------
-    run_dir : str
-        Path to a simulation output directory (must contain ``solution.npy``,
-        ``t.npy``, ``r.npy``, ``metadata.npz`` and ``diagnostics.npz``).
-    stable_window : tuple of float, optional
-        ``(ln_a_min, ln_a_max)`` window over which the oscillon is treated as
-        stable; defaults to :data:`DEFAULT_STABLE_WINDOW`.
-    label : str, optional
-        Human readable label for plots.  Defaults to ``os.path.basename(run_dir)``.
+    """
+    Loader + parameter extractor for a single simulation directory.
     """
 
     run_dir: str
@@ -192,7 +151,9 @@ class OscillonRun:
         self._build_grid_and_matter()
 
     def _build_grid_and_matter(self):
-        """Reconstruct the same Grid / ScalarMatter objects used at run time."""
+        """
+        Reconstruct the same Grid / ScalarMatter objects used at run time.
+        """
         scalar_mu       = 1.0
         selfinteraction = float(self.meta.get("selfinteraction", 0.08))
         r_max  = float(self.meta.get("r_max", 150.0))
@@ -300,24 +261,14 @@ class OscillonRun:
     # Function that will get us the oscillation frequency of the oscillons.
     def fft_source_spectrum(
         self,
+        # number of overtones you want to include 
         n_harmonics: int = 5,
         prominence_ratio: float = 0.05,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Power spectrum of Phi^2(t) with Phi = u_r0 - PHI_MIN.
 
-        Returns
-        -------
-        omegas : ndarray
-            Angular frequencies in code units (m), positive only.
-        amps   : ndarray
-            |FFT|^2 (one-sided, real units).
-        peaks  : ndarray, shape (n_harmonics_found, 2)
-            (omega_peak, amp_peak) of the dominant peaks, sorted by
-            amplitude descending.
-
-        Notes
-        -----
+        Note:
         The paper notes (p. 10) that, for symmetric potentials,
         Phi^2 oscillates at twice the oscillation frequency
         omega_osc.  For our asymmetric potential the dominant peak of
@@ -338,21 +289,25 @@ class OscillonRun:
         dt = float(np.mean(np.diff(t)))
         n  = sig.size
 
-        # Hann window to reduce spectral leakage
+        # We produce a hann window [smoothly putting the signal to zero at edges]
+        # to not have sharp jumps in frequency
+        # at the end of the time series (fake frequencies -> leakage)
         win = np.hanning(n)
         sig_w = sig * win
 
-        # cycles per code time
-        freqs = np.fft.rfftfreq(n, d=dt)                   
-        amps  = np.abs(np.fft.rfft(sig_w)) ** 2
+        # Applying fast fourier transformation on the signal 
+        # and extracting all frequencies out of it and the power (amp) per frequency 
+        # to see which of those freqs is most dominant  
+        freqs = np.fft.rfftfreq(n, d=dt)             
 
+        # This is the raw FFT Power      
+        amps  = np.abs(np.fft.rfft(sig_w)) ** 2
         # angular frequency (since these are the units from GW paper)
         omegas = 2.0 * np.pi * freqs                       
-
         # Skip the zero-frequency bin
         omegas, amps = omegas[1:], amps[1:]
 
-        # Pick local maxima via a simple discrete-difference criterion
+        # Finding the local maxima in the powerspectrum (if its larger than neighbours)
         peaks = []
         if amps.size >= 3:
             local = (amps[1:-1] > amps[:-2]) & (amps[1:-1] > amps[2:])
@@ -370,6 +325,8 @@ class OscillonRun:
 
         return omegas, amps, np.asarray(peaks)
 
+    # The function that is actually used
+    # Throws away full freq axis, just keeps dominant freq and all other harmonics
     def extract_omega_source(
         self,
         n_harmonics: int = 5,
@@ -479,7 +436,6 @@ class OscillonRun:
         return out
 
     #PLOTTING FUNCTION
-
     def plot_source_power_spectrum(self, ax=None, n_harmonics: int = 5,
                                    color: str = "C0"):
         """
@@ -651,7 +607,9 @@ def check_equation_of_state(
 #PART B: Semi-analytical multi-oscillon GW spectrum                    #
 ############################################################
 
-
+# Here we compute how much the universe (scale factor) has expanded at each time step
+# the scale factor evolves depending on our EOS parameter w
+# calculated based on time array, w and H0.
 def background_a_of_t(t: np.ndarray, w: float, H0: float) -> np.ndarray:
     """
     Background scale factor a(t) for a fluid with EoS w 
@@ -667,7 +625,9 @@ def background_a_of_t(t: np.ndarray, w: float, H0: float) -> np.ndarray:
     pref = (9.0 / 4.0) ** (1.0 / (3.0 * (1.0 + w)))
     return pref * base ** p
 
-# computes the conformal time fromt the cosmic time (integral [0,t] dt/a(t))
+# Computes the cosmic time (simulation time t) to conformal time (time in GW eqs)
+# we do a numerical integration tau= \int dt/a(t)
+# When we calculate the GW spectrum, we use conformal time (to scale out expansion)
 def conformal_time(t: np.ndarray, a: np.ndarray) -> np.ndarray:
     """
     Cumulative conformal time tau(t) = int_0^t dt'/a(t').
@@ -676,11 +636,10 @@ def conformal_time(t: np.ndarray, a: np.ndarray) -> np.ndarray:
     tau = _cumtrapz(inv_a, t, initial=0.0)
     return tau
 
-# randomly puts N oscillons in a box of Size L^3.
+# Randomly puts N oscillons in a box of Size L^3.
 # For me not really needed since spherical symmetry.
 # But could be intresting to study interference effects 
 # of oscillons at different locations.
-
 # With randomly distributed oscillons the GW signal scales as
 # \Omega^N_GW =  N \Omega^1_GW
 def _draw_random_positions(N: int, R: float, V: float,
@@ -744,6 +703,7 @@ def _f_ij_polarisation(k_hat: np.ndarray) -> np.ndarray:
     return 0.5 * (f + f.T)
 
 # The machine that takes any 3×3 tensor and extracts only the gravitational wave part.
+# or in other words takes teh transverse traceless projection
 def _Lambda_TT(k_hat: np.ndarray) -> np.ndarray:
     """
     Transverse-traceless projector Lambda_{ij,lm}(k_hat)
@@ -758,7 +718,8 @@ def _Lambda_TT(k_hat: np.ndarray) -> np.ndarray:
                 - np.einsum("ij,lm->ijlm", P, P))
     return L
 
-# basicly calculates full T^TT without the fijk which is calculated above.
+# basicly calculates full anisotropic stress tensor T^TT 
+# without the fijk (because it is calculated above).
 def T_TT_single_envelope(
     k_vec: np.ndarray,
     a_t:   np.ndarray,
@@ -782,7 +743,9 @@ def T_TT_single_envelope(
     pref = (np.pi ** 1.5) * Delta * (Delta + 2.0) * R / (4.0 * a_t * (Delta + 1.0))
     return pref * np.exp(-R ** 2 * k_anis_sq / (4.0 * a_t ** 2))
 
-# How much GW energy is carried by a GW at each wavenumber k 
+# How much GW energy is carried by a GW at each wavenumber k
+# This function tells us how to calculate one specific point in the spectrum
+# The next function will be the loop over the full spectrum 
 def Omega_GW(
     A: float,
     R: float,
@@ -859,9 +822,7 @@ def Omega_GW(
         ``fourier_modes`` -- a sequence of ``(omega_n, amp_n, phase_n)`` tuples
         such that ``Phi(t) = sum_n amp_n cos(omega_n t + phase_n)``.
 
-    Returns
-    -------
-    dict with keys:
+    Returns:
       * k            -- comoving |k| grid (1/length, code units)
       * k_phys       -- physical wavenumber today: k / a_f
       * Omega_GW     -- dimensionless GW spectrum at a_f
@@ -881,6 +842,7 @@ def Omega_GW(
     # comoving size of the oscillons shrujnk so much that the contribution to GW is negligable
 
     # 100 hublle times is maybe to conservative, 10 is more realistic. will be tested later
+    # UPDATE: 3 seems to be even more plausible
     if tau_window is None:
         t_end = 100.0 / max(H0, 1e-30)
         tau_window = (0.0, t_end)
@@ -908,7 +870,8 @@ def Omega_GW(
     # Here you can insert more than 40 points for higher resolution
     if k_grid is None:
         k_grid = np.logspace(np.log10(0.05 * omega_source),
-                             np.log10(5.0 * omega_source), 40)
+                             np.log10(5.0 * omega_source), 180)
+                             # HERE ABOVE YOU CAN ADJUST THE K_GRID MAXIMUM <- PrevVal: 40
     k_grid = np.asarray(k_grid)
     nk = k_grid.size
 
@@ -1041,8 +1004,13 @@ def Omega_GW(
                 Omega_k += sin_th[it] * dth * dph * mod_sq
         # Adding prefactors as well
         Omega[ik] = ((k ** 3) / (2.0 * a_f ** 4 * rho_c) * (1.0 / V) * Omega_k / (2.0 * np.pi) ** 3)
-
-    # -------------------- power-law fit at k < peak ---------------------- #
+    
+    # END OF BIG CALCULATION LOOP (calculating 3.18 numerically)
+    ##################################################################
+    
+    ##################################
+    # Power law fit, Figure 3 of paper
+    ##################################
     A_GW, n_GW, peak_k_phys = _fit_power_law(k_grid / a_f, Omega, omega_source)
 
     return dict(
@@ -1065,7 +1033,9 @@ def Omega_GW(
 
 def _fit_power_law(k_phys: np.ndarray, Omega: np.ndarray, omega_source: float,
                    width: float = 1.0):
-    """Fit ``Omega_GW = A_GW (k/omega_s)^{n_GW}`` on the rising side of the peak."""
+    """
+    Fit Omega_GW = A_GW (k/omega_s)^{n_GW} on the rising side of the peak.
+    """
     Omega = np.asarray(Omega)
     k_phys = np.asarray(k_phys)
     if not np.any(Omega > 0):
@@ -1081,13 +1051,11 @@ def _fit_power_law(k_phys: np.ndarray, Omega: np.ndarray, omega_source: float,
     n_GW, lnA = np.polyfit(x, y, 1)
     return float(np.exp(lnA)), float(n_GW), peak_k
 
+############################################################
+#PART C: Plotting GR vs EsGB + helper stuff
+############################################################
 
-# --------------------------------------------------------------------------- #
-#                              PART C                                         #
-#               Plotting / GR vs EsGB comparison helpers                      #
-# --------------------------------------------------------------------------- #
-
-
+# Full pipeline function
 def compute_and_plot(
     run: OscillonRun,
     *,
@@ -1099,7 +1067,11 @@ def compute_and_plot(
     spec_kwargs: Optional[dict] = None,
     **kw,
 ):
-    """Extract parameters from ``run``, compute Omega_GW(k_phys), and plot it."""
+    """
+    1) Extract parameters from run 
+    2) compute Omega_GW(k_phys)
+    3) plot it.
+    """
     import matplotlib.pyplot as plt
     if ax is None:
         _, ax = plt.subplots(figsize=(7, 5))
@@ -1109,10 +1081,13 @@ def compute_and_plot(
     res = Omega_GW(
         A=params["A"], R=params["R"],
         omega_source=params["omega_source"],
-        H0=params["H0"],   # w defaults to 0 (matter dom.); see check_equation_of_state
+        H0=params["H0"],   # w defaults to 0 (matter dom.), see check_equation_of_state
         Delta=Delta, N=N, **spec_kwargs, **kw,
     )
     label = label or run.label
+
+    # We normalize the x axis k_phys / omega_src [resonance region is where this is \approx 1]
+    # log log is double log scale, hence we are working with a power law
     ax.loglog(res["k_phys"] / params["omega_source"], res["Omega_GW"],
               color=color, lw=1.5, label=label)
     ax.set_xlabel(r"$k_{\rm phys}/\omega_{\rm source}$", fontsize=12)
@@ -1122,7 +1097,7 @@ def compute_and_plot(
     ax.legend(fontsize=10)
     return ax, res
 
-
+# Compares GR vs Modified GR run
 def compare_runs(
     run_GR: OscillonRun,
     run_EsGB: OscillonRun,
@@ -1134,23 +1109,12 @@ def compare_runs(
     spec_kwargs: Optional[dict] = None,
     figure_kwargs: Optional[dict] = None,
 ):
-    """Overlay GR and EsGB ``Omega_GW(k)`` and show their ratio underneath.
+    """
+    Overlay GR and EsGB Omega_GW(k) and their ratio
+    Ratio is usefull for 
 
-    Parameters
-    ----------
-    run_GR, run_EsGB : OscillonRun
-    labels   : tuple of str
-    Delta    : float
-        Asymmetry parameter (same for both spectra).
-    N        : int
-        Number of oscillons in the comoving volume (same for both).
-    seed     : int
-        Shared RNG seed -> same random positions/phases for an apples-to-apples
-        comparison.
-    spec_kwargs : dict, optional
-        Extra kwargs forwarded to :func:`Omega_GW`.
-    figure_kwargs : dict, optional
-        Extra kwargs forwarded to ``plt.subplots``.
+    Ratio > 1 MG produces more GW
+    Ratio < 1 GR produces more GW
     """
     import matplotlib.pyplot as plt
     if spec_kwargs is None:
@@ -1158,23 +1122,20 @@ def compare_runs(
     if figure_kwargs is None:
         figure_kwargs = {}
 
+    # Extract respective parameters from selected runs
     params_GR   = run_GR.extract_all()
     params_EsGB = run_EsGB.extract_all()
 
-    # w defaults to 0 (matter domination, see module docstring); use
-    # check_equation_of_state on each run to verify this assumption.
+    # w defaults to 0 
+    # EOS can be checked with "check_equation_of_state" to see if its close to w=0.
+    
+    # Calculate GR omega
     res_GR = Omega_GW(
-        A=params_GR["A"], R=params_GR["R"],
-        omega_source=params_GR["omega_source"],
-        H0=params_GR["H0"],
-        Delta=Delta, N=N, seed=seed, **spec_kwargs,
-    )
-    res_EsGB = Omega_GW(
-        A=params_EsGB["A"], R=params_EsGB["R"],
-        omega_source=params_EsGB["omega_source"],
-        H0=params_EsGB["H0"],
-        Delta=Delta, N=N, seed=seed, **spec_kwargs,
-    )
+        A=params_GR["A"], R=params_GR["R"],omega_source=params_GR["omega_source"],H0=params_GR["H0"],
+        Delta=Delta, N=N, seed=seed, **spec_kwargs,)
+    # Calculate MGR omega
+    res_EsGB = Omega_GW(A=params_EsGB["A"], R=params_EsGB["R"],omega_source=params_EsGB["omega_source"],H0=params_EsGB["H0"],
+        Delta=Delta, N=N, seed=seed, **spec_kwargs,)
 
     fig, axes = plt.subplots(2, 1, figsize=(7, 8),
                              gridspec_kw=dict(height_ratios=[3, 1.5], hspace=0.05),
@@ -1192,18 +1153,17 @@ def compare_runs(
 
     # Interpolate EsGB onto the GR x-axis to take the ratio
     Omega_EsGB_on_GR = np.interp(x_GR, x_EsGB, res_EsGB["Omega_GW"], left=np.nan, right=np.nan)
-    ratio = Omega_EsGB_on_GR / np.where(res_GR["Omega_GW"] > 0,
-                                        res_GR["Omega_GW"], np.nan)
+    ratio = Omega_EsGB_on_GR / np.where(res_GR["Omega_GW"] > 0,res_GR["Omega_GW"], np.nan)
     ax_bot.semilogx(x_GR, ratio, "k-", lw=1.4)
     ax_bot.axhline(1.0, color="grey", ls=":", lw=0.8)
     ax_bot.set_xlabel(r"$k_{\rm phys}/\omega_{\rm source}$", fontsize=12)
-    ax_bot.set_ylabel(r"$\Omega_{\rm GW}^{\rm EsGB}/\Omega_{\rm GW}^{\rm GR}$",
-                       fontsize=11)
+    ax_bot.set_ylabel(r"$\Omega_{\rm GW}^{\rm EsGB}/\Omega_{\rm GW}^{\rm GR}$",fontsize=11)
     ax_bot.grid(True, alpha=0.3, which="both")
+    
     # gridspec_kw already controls spacing; skip tight_layout to avoid warnings
     return fig, (ax_top, ax_bot), (res_GR, res_EsGB)
 
-
+# Reproduces figure 6 and 7 from paper, GW in function of w (in case it would be needed)
 def plot_AGW_nGW_vs_w(
     runs: Sequence[OscillonRun],
     ax=None,
@@ -1214,21 +1174,8 @@ def plot_AGW_nGW_vs_w(
     N: int = 1,
     spec_kwargs: Optional[dict] = None,
 ):
-    """Plot fitted ``A_GW`` and ``n_GW`` vs ``w``.
-
-    Reproduces paper Sec. 4 figs. 6-7: each (run, w) pair contributes one
-    ``(w, A_GW)`` and ``(w, n_GW)`` point; the analytic fits eqs. 4.18-4.21
-    are overlaid in dashed.
-
-    Parameters
-    ----------
-    runs : sequence of OscillonRun
-        Each run supplies ``A``, ``R``, ``omega_source``, ``H0``.
-    w_values : sequence of float, optional
-        ``w`` values at which to evaluate :func:`Omega_GW` for *every* run.
-        Defaults to ``[0.0]`` (the hard-coded background of the GW pipeline);
-        provide e.g. ``np.linspace(-0.1, 0.5, 7)`` to compare against the
-        analytic fits across a range of equation-of-state values.
+    """
+    Plot fitted A_GW and n_GW vs w.
     """
     import matplotlib.pyplot as plt
     if ax is None:
@@ -1278,12 +1225,9 @@ def plot_AGW_nGW_vs_w(
     fig.tight_layout()
     return fig, axes, dict(w=w_vals, A_GW=A_vals, n_GW=n_vals, labels=lbls)
 
-
-# --------------------------------------------------------------------------- #
-#                              PART D                                         #
-#                       Analytic scaling helpers                              #
-# --------------------------------------------------------------------------- #
-
+#################################
+#PART D: Analytic scaling laws
+#################################
 
 def Omega_GW_amplitude_scaling(Omega_ref: np.ndarray, A: float, A_ref: float):
     r"""Section 4 scaling: :math:`\\Omega_{\\rm GW} \\propto A^4`."""
