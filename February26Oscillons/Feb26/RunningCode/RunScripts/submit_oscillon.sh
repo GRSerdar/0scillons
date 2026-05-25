@@ -16,7 +16,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
 #SBATCH --time=7-00:00:00
-#SBATCH --cluster=genius
+#SBATCH --clusters=wice
 
 # ── Modules ──────────────────────────────────────────────────────────────────
 module purge

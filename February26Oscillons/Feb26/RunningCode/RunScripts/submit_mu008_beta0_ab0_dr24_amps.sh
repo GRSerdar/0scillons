@@ -29,4 +29,4 @@ for AMP in "${AMPS[@]}"; do
     done
 done
 
-echo "All jobs submitted.  Check queue with:  squeue -u \$USER --cluster=genius"
+echo "All jobs submitted.  Check queue with:  squeue -u \$USER --clusters=wice"

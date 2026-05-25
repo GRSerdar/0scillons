@@ -46,4 +46,4 @@ for LGB in 0 1 2 3 4 5 6 7 8; do
         submit_oscillon.sh "${LGB}"
 done
 
-echo "Done. Check queue with:  squeue -u \$USER --cluster=genius"
+echo "Done. Check queue with:  squeue -u \$USER --clusters=wice"

@@ -16,4 +16,4 @@ for LGB in "${LAMBDAS[@]}"; do
     sbatch --job-name="osc_lgb${LGB}" submit_oscillon.sh "${LGB}"
 done
 
-echo "All jobs submitted.  Check queue with:  squeue -u \$USER --cluster=genius"
+echo "All jobs submitted.  Check queue with:  squeue -u \$USER --clusters=wice"

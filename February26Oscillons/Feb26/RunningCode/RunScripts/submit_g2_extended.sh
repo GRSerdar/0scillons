@@ -20,7 +20,7 @@ for G2 in -0.5 -1 -2 -3 -4 -5 -10 10 20 50; do
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
 #SBATCH --time=7-00:00:00
-#SBATCH --cluster=genius
+#SBATCH --clusters=wice
 #SBATCH --job-name=l${LGB}_g${G2}
 
 module purge
