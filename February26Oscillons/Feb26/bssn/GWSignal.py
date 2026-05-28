@@ -457,9 +457,8 @@ class OscillonRun:
 
         ax.set_xlabel(r"$\omega \;[m]$", fontsize=12)
         ax.set_ylabel(r"$|\widetilde{\Phi^2}(\omega)|^2$ (normalised)", fontsize=12)
-        ax.set_title(rf"Power spectrum of $\Phi^2(t) = (\phi(r_0,t)-\phi_{{\min}})^2$  "
-                     rf"(stable window {self.stable_window})")
-        ax.grid(True, alpha=0.3)
+        #ax.set_title(rf"Power spectrum of $\Phi^2(t) = (\phi(r_0,t)-\phi_{{\min}})^2$ "rf"(stable window {self.stable_window})")
+        #ax.grid(True, alpha=0.3)
         ax.legend(fontsize=9)
         return ax
 

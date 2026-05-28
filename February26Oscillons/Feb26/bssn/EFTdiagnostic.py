@@ -285,8 +285,14 @@ def get_eft_diagnostic(states_over_time, t, grid, background, matter, params, lo
         # This object is the normalised determinant, which typically has values of order one and is normalised to unity in the absence of a scalar field.
         det_M_i = np.linalg.det(M_eff)
 
+        # BUGFIX
+        # we have to normalize det_Mi by det_bar_gamma_UU  (since that det is not 1 in engrenage!!!)
+        det_bar_gamma_UU = np.linalg.det(bar_gamma_UU)
+        det_M_i_norm = det_M_i / np.maximum(det_bar_gamma_UU, _EPS)
+
         # Full ratio with correct factor in front 
-        disc_GB_i = det_M_i # / np.maximum((1.0 + Omega_pp)**2, _EPS)
+        #disc_GB_i = det_M_i #/  np.maximum((1.0 + Omega_pp)**2, _EPS)
+        disc_GB_i = det_M_i_norm / np.maximum((1.0 + Omega_pp)**2, _EPS)
         denominator_GB = np.maximum((1.0 + Omega_pp)**2, _EPS)
         ##########################
         # g2 Diagnostic

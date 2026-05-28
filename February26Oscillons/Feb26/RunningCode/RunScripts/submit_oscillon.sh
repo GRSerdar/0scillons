@@ -10,12 +10,12 @@
 
 #SBATCH --output=slurm_output/%j.txt
 #SBATCH -e slurm_output/%j.err
-#SBATCH --account=intro_vsc38419
-#SBATCH --partition=batch_long
+#SBATCH --account=lp_nr
+#SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
-#SBATCH --time=7-00:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --clusters=wice
 
 # ── Modules ──────────────────────────────────────────────────────────────────
@@ -35,6 +35,7 @@ A_MG_VAL="${A_MG:-0.2}"
 B_MG_VAL="${B_MG:-0.4}"
 MIN_DR_VAL="${MIN_DR:-0.0625}"
 WIDTH_VAL="${WIDTH:-3}"
+G2_VAL="${G2:-0.0}"
 
 SCRIPT_DIR="${SLURM_SUBMIT_DIR}"
 mkdir -p "${SCRIPT_DIR}/slurm_output"
@@ -63,6 +64,7 @@ python3 "${SCRIPT_DIR}/run_oscillon.py" \
     --b_mg="${B_MG_VAL}" \
     --min_dr="${MIN_DR_VAL}" \
     --width="${WIDTH_VAL}" \
+    --g2="${G2_VAL}" \
     ${FORCE_FLAG}
 
 echo "Finished: $(date)"

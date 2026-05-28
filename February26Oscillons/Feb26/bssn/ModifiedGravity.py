@@ -282,11 +282,24 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     
     elif coupling.startswith("quadratic"):
         # "quadratic" uses beta=250, "quadratic_50" uses beta=50, etc.
-        parts = coupling.split("_")
+        # Optional trailing "_rampOn" suffix multiplies the GB coupling by a
+        # second sigmoid S_on(chi) that is ~0 for ln(a) < 2 and ramps gently
+        # to 1 by ln(a) ~ 3.  Half-on at chi_on = exp(-4) (centrally a^2 ~ 1/chi).
+        ramp_on = coupling.endswith("_rampOn")
+        base_cpl = coupling[:-len("_rampOn")] if ramp_on else coupling
+
+        parts = base_cpl.split("_")
         beta = float(parts[1]) if len(parts) > 1 else 250
 
         d1Lambdadu = S*lambda_GB* (2.0 *matter.u * np.exp(-beta * matter.u * matter.u))
         d2Lambdadduu = S*lambda_GB* ( 2* np.exp(- beta * matter.u * matter.u )* (1-2*beta*(matter.u * matter.u))) 
+
+        if ramp_on:
+            chi_on = np.exp(-4.0)
+            k_on   = 400.0
+            S_on   = 1.0 / (1.0 + np.exp(k_on * (chi - chi_on)))
+            d1Lambdadu   = d1Lambdadu   * S_on
+            d2Lambdadduu = d2Lambdadduu * S_on
 
         gb_vars.d1Lambdadu[:]     = d1Lambdadu
         gb_vars.d2Lambdadduu[:]   = d2Lambdadduu
@@ -380,7 +393,15 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     # useful object
     Vt = (-(matter.v)*(matter.v) + np.einsum("xij, xi, xj->x",gamma_UU,matter.d1_u,matter.d1_u)) 
 
-    Sigma = 1+ g2*(-Vt + 2*matter.v * matter.v)
+    # When _rampOn is active, ramp g2 with the same sigmoid used for the GB coupling
+    g2_eff = g2
+    if coupling.endswith("_rampOn") and g2 != 0:
+        chi_on = np.exp(-4.0)
+        k_on   = 400.0
+        S_on_g2 = 1.0 / (1.0 + np.exp(k_on * (chi - chi_on)))
+        g2_eff  = g2 * S_on_g2
+
+    Sigma = 1+ g2_eff*(-Vt + 2*matter.v * matter.v)
     iSigma = 1/Sigma
     
     # This one is called covd2phi_times_chi[k][l] in GRFolres
@@ -393,18 +414,19 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     #\partial^i\phi \partial^j\phi
     d_u_phi_d_u_phi = np.einsum("xik, xjl, xk, xl->xij",bar_gamma_UU, bar_gamma_UU, matter.d1_u, matter.d1_u)
 
-    quadratic = (1/ Sigma) * (- matter.dVdu(matter.u) - 2*g2* matter.v * matter.v * matter.v * bssn_vars.K
-                                       + 2*g2* matter.v* matter.v * (-2*chi*np.einsum("xij, xj, xi->x",bar_gamma_UU, d1.phi, matter.d1_u) - chi*np.einsum("xij, xij->x",bar_gamma_UU, matter.d2_u))
-                                       + 2*g2* matter.v* matter.v * np.einsum("xij, xkij, xk->x",gamma_UU, bar_chris, matter.d1_u)
-                                       + two_thirds * g2 * matter.v * bssn_vars.K * (Vt+ matter.v *matter.v)
-                                       + 4 * g2 * matter.v * np.einsum("xij, xj, xi->x", gamma_UU, matter.d1_u, matter.d1_v)
-                                       + 2* g2 * chi * (matter.v * np.einsum("xij, xij->x",d_u_phi_d_u_phi, bar_A_LL) - np.einsum("xij, xij->x",d_u_phi_d_u_phi, Box_LL)))
+    quadratic = (1/ Sigma) * (- matter.dVdu(matter.u) - 2*g2_eff* matter.v * matter.v * matter.v * bssn_vars.K
+                                       + 2*g2_eff* matter.v* matter.v * (-2*chi*np.einsum("xij, xj, xi->x",bar_gamma_UU, d1.phi, matter.d1_u) - chi*np.einsum("xij, xij->x",bar_gamma_UU, matter.d2_u))
+                                       + 2*g2_eff* matter.v* matter.v * np.einsum("xij, xkij, xk->x",gamma_UU, bar_chris, matter.d1_u)
+                                       + two_thirds * g2_eff * matter.v * bssn_vars.K * (Vt+ matter.v *matter.v)
+                                       + 4 * g2_eff * matter.v * np.einsum("xij, xj, xi->x", gamma_UU, matter.d1_u, matter.d1_v)
+                                       + 2* g2_eff * chi * (matter.v * np.einsum("xij, xij->x",d_u_phi_d_u_phi, bar_A_LL) - np.einsum("xij, xij->x",d_u_phi_d_u_phi, Box_LL)))
     
     # g2 contribution to rho
-    rho_g2 = g2 * Vt * (Vt/4 + matter.v * matter.v)
+    rho_g2 = g2_eff * Vt * (Vt/4 + matter.v * matter.v)
 
     # g2 contributino to Si
-    S_g2_L = g2 * Vt[:,np.newaxis] * matter.v[:,np.newaxis] * matter.d1_u
+    _g2_col = g2_eff[:,np.newaxis] if np.ndim(g2_eff) == 1 else g2_eff
+    S_g2_L = _g2_col * Vt[:,np.newaxis] * matter.v[:,np.newaxis] * matter.d1_u
 
     ########################## Extra objects needed for the g2 term ##########################
    

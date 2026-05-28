@@ -15,12 +15,12 @@ for G2 in 0 0.1 0.5 1 2; do
 #!/bin/bash -l
 #SBATCH --output=${SCRIPT_DIR}/slurm_output/%j.txt
 #SBATCH -e ${SCRIPT_DIR}/slurm_output/%j.err
-#SBATCH --account=intro_vsc38419
-#SBATCH --partition=batch_long
+#SBATCH --account=lp_nr
+#SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
-#SBATCH --time=7-00:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --clusters=wice
 #SBATCH --job-name=l${LGB}_g2_${G2}
 
