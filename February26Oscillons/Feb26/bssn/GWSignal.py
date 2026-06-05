@@ -122,6 +122,9 @@ class OscillonRun:
     A: Optional[float] = None
     R: Optional[float] = None
     omega_source: Optional[float] = None
+    # (omega_n, A_n, phase_n) triples: least-squares Fourier modes of the
+    # radiating source Phi^2(t) - trend (A_n in units of phi^2).  These are
+    # modes of the source, not of the field Phi(t), and not FFT power.
     harmonics: Optional[np.ndarray] = None
     w: Optional[float] = None
     H0: Optional[float] = None
@@ -258,72 +261,136 @@ class OscillonRun:
             good = np.isfinite(R_arr) & (R_arr > 0)
         return float(np.mean(R_arr[good]))
 
-    # Function that will get us the oscillation frequency of the oscillons.
+
+
     def fft_source_spectrum(
         self,
-        # number of overtones you want to include 
         n_harmonics: int = 5,
         prominence_ratio: float = 0.05,
+        omega_min: float = 0.3,
+        fund_ratio: float = 0.2,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Power spectrum of Phi^2(t) with Phi = u_r0 - PHI_MIN.
 
-        Note:
-        The paper notes (p. 10) that, for symmetric potentials,
-        Phi^2 oscillates at twice the oscillation frequency
-        omega_osc.  For our asymmetric potential the dominant peak of
-        Phi^2 is normally at omega_osc itself.  We just take the
-        highest peak as omega_source regardless.
+        The source of the GWs is Phi^2(t), so we FFT Phi^2 directly: its
+        fundamental is omega_source (= omega_osc for our asymmetric potential,
+        2*omega_osc for a symmetric one), with overtones at integer multiples.
+
+        Returns (omegas, amps, peaks) where peaks[0] is the fundamental and
+        peaks[n] samples the (n+1)-th harmonic at n*omega_fund.
+
+        This is a frequency-finding diagnostic ONLY: the second column of
+        ``peaks`` is FFT *power* ``|rfft(sig)|^2`` and must not be used as a
+        time-domain amplitude.  To obtain time-domain cosine amplitudes for the
+        GW pipeline, use :meth:`extract_source_fourier_modes`.
+
+        Parameters
+        ----------
+        omega_min : absolute low-frequency floor (code units).  Rejects the
+            slow-drift / DC-leakage feature near omega ~ 0.  The field
+            fundamental is omega_osc ~ sqrt(V''(phi_min)) ~ O(1), so 0.3 is
+            safely below the true fundamental but above the drift.
+        fund_ratio : minimum power fraction (relative to the tallest strong
+            peak) for a peak to qualify as the fundamental.
         """
         mask = self._stable_mask()
         if np.sum(mask) < 16:
             mask = np.ones_like(mask)
 
-        # We select times in the stable window we choose earlier
-        # and then substract the potential pinimum and square it 
-        # we then remove the average, which leaves us only with the oscillating piece
+        # Source signal: Phi^2(t), with slow drift removed so it doesn't leak
+        # power into the low-omega bins (DC + linear + quadratic + cubic trend).
         t   = self.t[mask]
-        sig = (self.u_r0_t[mask] - PHI_MIN) ** 2
-        sig = sig - np.mean(sig)                           # remove DC
+        sig = (self.u_r0_t[mask] - PHI_MIN)** 2
+        sig = sig - np.polyval(np.polyfit(t, sig, 3), t)
+
+
+        # Mini diagnostic to check stuff
+        """
+        phister= self.u_r0_t[mask] - PHI_MIN
+        sig_phister = phister
+        sig_srcster = phister**2
+        """
 
         dt = float(np.mean(np.diff(t)))
         n  = sig.size
 
-        # We produce a hann window [smoothly putting the signal to zero at edges]
-        # to not have sharp jumps in frequency
-        # at the end of the time series (fake frequencies -> leakage)
-        win = np.hanning(n)
+        # Hann window to suppress spectral leakage from the finite time series.
+        win   = np.hanning(n)
         sig_w = sig * win
 
-        # Applying fast fourier transformation on the signal 
-        # and extracting all frequencies out of it and the power (amp) per frequency 
-        # to see which of those freqs is most dominant  
-        freqs = np.fft.rfftfreq(n, d=dt)             
-
-        # This is the raw FFT Power      
-        amps  = np.abs(np.fft.rfft(sig_w)) ** 2
-        # angular frequency (since these are the units from GW paper)
-        omegas = 2.0 * np.pi * freqs                       
-        # Skip the zero-frequency bin
+        # FFT -> power spectrum vs angular frequency; drop the zero-frequency bin.
+        freqs  = np.fft.rfftfreq(n, d=dt)
+        amps   = np.abs(np.fft.rfft(sig_w)) ** 2
+        omegas = 2.0 * np.pi * freqs
         omegas, amps = omegas[1:], amps[1:]
 
-        # Finding the local maxima in the powerspectrum (if its larger than neighbours)
-        peaks = []
+        # --- find candidate local maxima ---
         if amps.size >= 3:
             local = (amps[1:-1] > amps[:-2]) & (amps[1:-1] > amps[2:])
             idx_local = np.where(local)[0] + 1
-            if idx_local.size:
-                amp_max = amps[idx_local].max()
-                idx_strong = idx_local[amps[idx_local] > prominence_ratio * amp_max]
-                order = np.argsort(amps[idx_strong])[::-1][:n_harmonics]
-                for i in idx_strong[order]:
-                    peaks.append((omegas[i], amps[i]))
+            if idx_local.size == 0:
+                idx_local = np.array([int(np.argmax(amps))])
+        else:
+            idx_local = np.array([int(np.argmax(amps))])
+
+        amp_max = amps[idx_local].max()
+
+        # strong peaks only
+        idx_strong = idx_local[amps[idx_local] > prominence_ratio * amp_max]
+        if idx_strong.size == 0:
+            idx_strong = idx_local
+
+        # --- identify the fundamental ---
+        # Lowest-frequency strong peak that sits above the absolute floor
+        # omega_min AND carries a meaningful fraction of the peak power.
+        # Using an ABSOLUTE floor (not a relative one) so it can't be fooled
+        # when residual drift happens to be the tallest peak.
+        cand = idx_strong[(omegas[idx_strong] >= omega_min) &
+                          (amps[idx_strong] > fund_ratio * amp_max)]
+        if cand.size == 0:
+            # nothing above the floor: fall back to all strong peaks above omega_min,
+            # then to the globally tallest peak.
+            cand = idx_strong[omegas[idx_strong] >= omega_min]
+            if cand.size == 0:
+                cand = idx_strong
+        i_fund     = cand[int(np.argmin(omegas[cand]))]
+        omega_fund = omegas[i_fund]
+
+                # --- refine omega_fund to the bump's center of mass ---
+        # The raw peak can sit on a jagged spike on the bump's shoulder.
+        # Re-center it on the power-weighted mean over a window spanning
+        # the bump (robust to fine-structure spikes).
+        half_win = 0.35 * omega_fund          # window half-width ~ 35% of fundamental
+        win_mask = (omegas >= omega_fund - half_win) & (omegas <= omega_fund + half_win)
+        if np.any(win_mask):
+            w_om  = omegas[win_mask]
+            w_amp = amps[win_mask]
+            omega_fund = float(np.sum(w_om * w_amp) / np.sum(w_amp))
+
+        # --- sample the harmonic comb at n * omega_fund ---
+        # Read the local-max amplitude in a small bin window around each multiple,
+        # rather than re-detecting peaks (which clusters on the fundamental).
+        peaks = []
+        for nh in range(1, n_harmonics + 1):
+            om_n = nh * omega_fund
+            if om_n > omegas[-1]:
+                break
+            j = int(np.argmin(np.abs(omegas - om_n)))
+            lo, hi = max(0, j - 3), min(amps.size, j + 4)
+            j_loc = lo + int(np.argmax(amps[lo:hi]))
+            peaks.append((omegas[j_loc], amps[j_loc]))
 
         if not peaks:
             i = int(np.argmax(amps))
             peaks.append((omegas[i], amps[i]))
 
         return omegas, amps, np.asarray(peaks)
+
+
+
+
+
 
     # The function that is actually used
     # Throws away full freq axis, just keeps dominant freq and all other harmonics
@@ -336,6 +403,66 @@ class OscillonRun:
         """
         _, _, peaks = self.fft_source_spectrum(n_harmonics=n_harmonics)
         return float(peaks[0, 0]), peaks
+
+    def extract_source_fourier_modes(
+        self,
+        n_harmonics: int = 5,
+    ) -> np.ndarray:
+        """
+        Least-squares Fourier modes of the radiating source Phi^2(t).
+
+        These are modes of the *source* S(t) = (Phi(t) - PHI_MIN)^2 with its
+        slow (cubic) trend removed -- NOT modes of the field Phi(t) itself.
+
+        :meth:`fft_source_spectrum` is used here only to locate the candidate
+        angular frequencies omega_n (its second column is FFT *power* and must
+        not be used as a time-domain amplitude).  At those frequencies we
+        reconstruct the same detrended source signal in time and fit
+
+            S(t) ~ sum_n [ c_n cos(omega_n t) + s_n sin(omega_n t) ]
+
+        via :func:`numpy.linalg.lstsq`, then convert each pair to
+
+            A_n     = sqrt(c_n^2 + s_n^2)
+            phase_n = atan2(-s_n, c_n)
+
+        so that S(t) ~ sum_n A_n cos(omega_n t + phase_n).
+
+        A_n carries units of phi^2 (we fit the unnormalised source Phi^2).
+
+        Returns
+        -------
+        modes : ndarray, shape (n, 3)
+            Rows of ``(omega_n, A_n, phase_n)`` suitable to pass straight to
+            :func:`Omega_GW` as ``fourier_modes``.
+        """
+        # Candidate frequencies only -- ignore the FFT power column.
+        _, _, peaks = self.fft_source_spectrum(n_harmonics=n_harmonics)
+        omega_n = np.asarray(peaks)[:, 0]
+
+        # Rebuild the SAME detrended source signal as fft_source_spectrum().
+        mask = self._stable_mask()
+        if np.sum(mask) < 16:
+            mask = np.ones_like(mask)
+        t   = self.t[mask]
+        sig = (self.u_r0_t[mask] - PHI_MIN) ** 2
+        sig = sig - np.polyval(np.polyfit(t, sig, 3), t)
+
+        # Design matrix [cos(w0 t) sin(w0 t) cos(w1 t) sin(w1 t) ...].
+        cols = []
+        for w in omega_n:
+            cols.append(np.cos(w * t))
+            cols.append(np.sin(w * t))
+        M = np.column_stack(cols)
+
+        coeffs, *_ = np.linalg.lstsq(M, sig, rcond=None)
+        c = coeffs[0::2]
+        s = coeffs[1::2]
+
+        A_n     = np.sqrt(c ** 2 + s ** 2)
+        phase_n = np.arctan2(-s, c)
+
+        return np.column_stack([omega_n, A_n, phase_n])
 
     def extract_H0(self) -> float:
         """
@@ -414,7 +541,10 @@ class OscillonRun:
         if self.A is None or self.R is None or self.omega_source is None:
             self.A = self.extract_amplitude()
             self.R = self.extract_R()
-            self.omega_source, self.harmonics = self.extract_omega_source()
+            self.omega_source, _ = self.extract_omega_source()
+            # harmonics are least-squares Fourier modes of the source Phi^2(t),
+            # i.e. (omega_n, A_n, phase_n) triples -- NOT raw FFT power peaks.
+            self.harmonics = self.extract_source_fourier_modes()
             self.H0 = self.extract_H0()
             self.w  = 0.0   # hard-coded; see check_equation_of_state for sanity check
 
@@ -817,9 +947,13 @@ def Omega_GW(
 
     harmonics : {'cosine', 'fourier'}
         ``'cosine'`` (default) uses ``Phi(t) = A cos(omega_source t + phi_q)``.
-        ``'fourier'`` uses the harmonic decomposition supplied via
-        ``fourier_modes`` -- a sequence of ``(omega_n, amp_n, phase_n)`` tuples
-        such that ``Phi(t) = sum_n amp_n cos(omega_n t + phase_n)``.
+        ``'fourier'`` uses the harmonic decomposition of the *source*
+        supplied via ``fourier_modes`` -- a sequence of
+        ``(omega_n, A_n, phase_n)`` triples such that the radiating source
+        ``Phi^2(t) ~ sum_n A_n cos(omega_n t + phase_n)``.  These are modes
+        of the source Phi^2(t) - trend (A_n in units of phi^2), not of the
+        field Phi(t); they come from
+        :meth:`OscillonRun.extract_source_fourier_modes`.
 
     Returns:
       * k            -- comoving |k| grid (1/length, code units)
@@ -892,9 +1026,10 @@ def Omega_GW(
         # Phi(t) = A cos(omega t + phi_q)  =>  Phi^2 = A^2 cos^2 = A^2/2 (1 + cos(2 omega t + 2 phi_q))
         modes = [(omega_source, A, 0.0)]
     
-    # Fourier mode includes the harmonics from the FFT analysis
-    # Also gives the secondary peaks in the spectrum
-    # essentially adds a sum of cosines with different phases to the primary mode
+    # Fourier mode uses the least-squares decomposition of the SOURCE Phi^2(t)
+    # (modes (omega_n, A_n, phase_n) from extract_source_fourier_modes).
+    # Also gives the secondary peaks in the spectrum: it reconstructs the source
+    # directly as a sum of cosines, so it must NOT be squared again below.
     elif harmonics == "fourier":
         if fourier_modes is None or len(fourier_modes) == 0:
             raise ValueError("harmonics='fourier' requires `fourier_modes`.")
@@ -958,17 +1093,25 @@ def Omega_GW(
                     omega_n = modes[0][0]
                     A_n     = modes[0][1]
                     # cos(omega t + phi_q)^2 = 0.5 (1 + cos(2 omega t + 2 phi_q))
-                    phi_sq_q = 0.5 * A_n ** 2 * (1.0 + np.cos(2.0 * omega_n * t_grid[None, :]
-                                                    + 2.0 * phases[:, None]))   
+                    # Changed it to times 1 in stead of times 2 in the cosine
+                    phi_sq_q = 0.5 * A_n ** 2 * (1.0 + np.cos(1.0 * omega_n * t_grid[None, :]
+                                                    + 1.0 * phases[:, None]))   
                 
                 # IN THE CASE WE ARE USING FOURIER MODE
-                # General Fourier sum -> we just sum products
+                # Direct reconstruction of the radiating source Phi^2(t):
+                # Phi_q^2(t) = sum_n A_n cos(omega_n t + phase_n)  (already the
+                # source, NOT the field -> do not square it again).
                 else:
-                    # Phi_q(t) = sum_n A_n cos(omega_n t + phi_q + phase_n)
-                    Phi_q_t = np.zeros((N, n_tau))
+                    phi_sq_q = np.zeros((N, n_tau))
+                    # Per-oscillon physical time shift: a real time offset shifts
+                    # harmonic n by omega_n * t_shift_q, not by one common phase
+                    # for all harmonics.  (For N=1 this is an irrelevant overall
+                    # shift.)
+                    t_shift_q = phases[:, None] / omega_source
                     for (omega_n, A_n, phase_n) in modes:
-                        Phi_q_t += A_n * np.cos(omega_n * t_grid[None, :]+ phase_n+ phases[:, None])
-                    phi_sq_q = Phi_q_t ** 2
+                        phi_sq_q += A_n * np.cos(
+                            omega_n * (t_grid[None, :] + t_shift_q) + phase_n
+                        )
 
 
 

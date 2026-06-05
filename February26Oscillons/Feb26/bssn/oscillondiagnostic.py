@@ -16,6 +16,8 @@
 #   u_c(t)     — scalar field at the center
 #   u_bar(t)   — volume-averaged scalar field
 #   Asq_c(t)   — central A_ij A^ij  (GW energy proxy)
+#   alpha_c(t) — central lapse  alpha(t, r=0)
+#   tau_c(t)   — central proper time  integral_0^t alpha(t', r=0) dt'
 #   delta_rho   — spatial profiles of  rho/rho_bar - 1
 #
 # IMPORTANT: pass the FULL (perturbed) evolution state, NOT a
@@ -93,6 +95,9 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         u_c        – scalar field value at the center
         u_bar      – volume-averaged scalar field
         Asq_c      – central A_ij A^ij  (GW energy density proxy)
+        alpha_c    – central lapse  alpha(t, r=0)
+        tau_c      – central proper time  int_0^t alpha(t', r=0) dt'
+                     (cumulative trapezoidal integral; tau_c[0] = 0)
     """
     lambda_GB, a_mg, b_mg, chi0, coupling, g2 = params
 
@@ -116,6 +121,7 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
     u_c_arr    = np.zeros(num_times)
     u_bar_arr  = np.zeros(num_times)
     Asq_c_arr  = np.zeros(num_times)
+    alpha_c_arr = np.zeros(num_times)   # central lapse alpha(t, r=0)
 
     r_inner = grid.min_dr * 0.5
     r_outer = r_max_diag if r_max_diag is not None else np.inf
@@ -199,9 +205,24 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         # Scale factor from volume-averaged conformal factor
         #   In FLRW:  e^{4 phi} = a^2,  so  a = sqrt(<e^{4 phi}>)
         # _trapz is the trapezoidal rule for numerical integration
-        coord_vol = _trapz(4.0 * np.pi * rp**2, rp)
-        avg_e4phi = _trapz(e4p * 4.0 * np.pi * rp**2, rp) / max(coord_vol, 1e-30)
-        scale_fac[i] = np.sqrt(max(avg_e4phi, 1e-30))
+
+        # VOLUME AVERAGED SCALE FACTOR 
+        # coord_vol = _trapz(4.0 * np.pi * rp**2, rp)
+        # avg_e4phi = _trapz(e4p * 4.0 * np.pi * rp**2, rp) / max(coord_vol, 1e-30)
+        # scale_fac[i] = np.sqrt(max(avg_e4phi, 1e-30))
+
+
+        # SCALE FACTOR FROM CENTER
+        # Scale factor from the central conformal factor
+        #   In FLRW:  e^{4 phi} = a^2,  so  a = sqrt(e^{4 phi}|_{r=0})
+        # rp[0] is the innermost physical grid point (closest to r = 0).
+        e4phi_center = e4p[0]
+        scale_fac[i] = np.sqrt(max(e4phi_center, 1e-30))
+
+        # Central lapse  alpha(t, r=0)  — needed for the central proper time
+        # tau_c(t) = int_0^t alpha(t', r=0) dt'.  We sample at rp[0] for
+        # consistency with the other "central" diagnostics above.
+        alpha_c_arr[i] = bssn_N.lapse[r_phys_mask][0]
 
         # ── Oscillon mass, volume, radius, compactness [Eqs. 18–20] ────
         osc_mask = r_phys_mask & (rho > surface_threshold * rho_c[i])
@@ -227,6 +248,17 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
 
     ln_a = np.log(np.maximum(scale_fac, 1e-30))
 
+    # CENTRAL PROPER TIME 
+    # Central proper time:  tau_c(t) = int_0^t alpha(t', r=0) dt'
+    # Cumulative trapezoidal rule over the output time samples, with
+    # tau_c(t_0) = 0 by construction.  Handles the single-snapshot case.
+    t_arr = np.atleast_1d(t)
+    tau_c = np.zeros_like(alpha_c_arr)
+    if t_arr.size > 1:
+        dt        = np.diff(t_arr)
+        alpha_avg = 0.5 * (alpha_c_arr[1:] + alpha_c_arr[:-1])
+        tau_c[1:] = np.cumsum(alpha_avg * dt)
+
     return {
         "t"         : t,
         "r"         : r,
@@ -247,6 +279,8 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         "u_c"       : u_c_arr,
         "u_bar"     : u_bar_arr,
         "Asq_c"     : Asq_c_arr,
+        "alpha_c"   : alpha_c_arr,
+        "tau_c"     : tau_c,
     }
 
 

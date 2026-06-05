@@ -291,15 +291,16 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
         parts = base_cpl.split("_")
         beta = float(parts[1]) if len(parts) > 1 else 250
 
-        d1Lambdadu = S*lambda_GB* (2.0 *matter.u * np.exp(-beta * matter.u * matter.u))
-        d2Lambdadduu = S*lambda_GB* ( 2* np.exp(- beta * matter.u * matter.u )* (1-2*beta*(matter.u * matter.u))) 
-
         if ramp_on:
             chi_on = np.exp(-4.0)
             k_on   = 400.0
             S_on   = 1.0 / (1.0 + np.exp(k_on * (chi - chi_on)))
-            d1Lambdadu   = d1Lambdadu   * S_on
-            d2Lambdadduu = d2Lambdadduu * S_on
+            S_eff  = S_on
+        else:
+            S_eff  = S
+
+        d1Lambdadu = S_eff*lambda_GB* (2.0 *matter.u * np.exp(-beta * matter.u * matter.u))
+        d2Lambdadduu = S_eff*lambda_GB* ( 2* np.exp(- beta * matter.u * matter.u )* (1-2*beta*(matter.u * matter.u)))
 
         gb_vars.d1Lambdadu[:]     = d1Lambdadu
         gb_vars.d2Lambdadduu[:]   = d2Lambdadduu
