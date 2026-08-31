@@ -41,6 +41,13 @@ module load SciPy-bundle/2024.05-gfbf-2024a
 module load tqdm/4.66.5-GCCcore-13.3.0
 ```
 
+Those modules provide Python 3.12.3, numpy 1.26.4, scipy 1.13.1, mpmath 1.3.0
+and tqdm 4.66.5. They do **not** provide matplotlib — on the cluster it came
+from a `pip install --user` into `~/.local`, so it has to be installed
+separately. `requirements-pinned.txt` records the exact versions the archived
+runs were produced with; use it when reproducing published numbers, and
+`requirements.txt` for ordinary development.
+
 On any other SLURM cluster, either load the equivalent modules or point the
 submission scripts at a virtualenv.
 
