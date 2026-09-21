@@ -10,7 +10,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "${SCRIPT_DIR}/slurm_output"
 
-OSC_DIR="${VSC_DATA:-/data/leuven/384/vsc38419}/oscillon_runs"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
+OSC_DIR="${OSCILLON_RUN_DATA:-${REPO_ROOT}/oscillon_runs_data}"
 
 AMP=-0.02
 MU=0.08

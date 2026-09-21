@@ -24,6 +24,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
+from paths import GAUGE_DATA
 from core.grid import Grid
 from core.rhsevolution_MG import get_rhs
 from core.spacing import CubicSpacing, SinhSpacing
@@ -99,8 +100,7 @@ def run_simulation(args):
     tag = build_run_tag(gauge_type, eta, lgb, selfinteraction, a_mg, b_mg,
                         perturbation, width, min_dr, max_dr, coupling, spacing_type,
                         sinh_a)
-    vsc_data = os.environ.get("VSC_DATA", os.path.join(SCRIPT_DIR, "..", "DATA"))
-    data_dir = os.path.join(vsc_data, "gauge_testing", tag)
+    data_dir = str(GAUGE_DATA / tag)
     os.makedirs(data_dir, exist_ok=True)
 
     sol_path = os.path.join(data_dir, "solution.npy")

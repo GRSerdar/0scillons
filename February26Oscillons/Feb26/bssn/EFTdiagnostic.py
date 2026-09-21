@@ -10,7 +10,7 @@ _EPS = 1e-30
 
 
 def _sigmoid_switch(chi, chi0):
-    return 1.0 / (1.0 + np.exp(-100.0 * (chi - chi0)))
+    return 1.0 #/ (1.0 + np.exp(-100.0 * (chi - chi0)))
 
 
 def get_eft_diagnostic(states_over_time, t, grid, background, matter, params, log_progress=True):

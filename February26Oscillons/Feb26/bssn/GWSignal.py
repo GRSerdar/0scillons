@@ -79,11 +79,10 @@ PHI_MIN = 0.0
 # ASSYMETRY PARAMETER VALUE
 DEFAULT_DELTA = 0.3
 
-# Default base data directory.  Falls back to ``$VSC_DATA/oscillon_runs``.
-DEFAULT_DATA_DIR = os.path.join(
-    os.environ.get("VSC_DATA", os.path.join(_PROJECT_ROOT, "RunningCode", "DATA")),
-    "oscillon_runs",
-)
+# Default base data directory: the ``oscillon_runs_data`` symlink (or
+# ``$OSCILLON_RUN_DATA`` / legacy ``$VSC_DATA/oscillon_runs``).
+from paths import RUN_DATA  # noqa: E402
+DEFAULT_DATA_DIR = str(RUN_DATA)
 
 # Default tags for the GR / EsGB runs used (can be changed to g2 runs as wel.)
 DEFAULT_GR_TAG   = "lgb0.0_mu0.08_a0.2_b0.4_amp-0.02_R3_dr0.0625_quadratic_0"

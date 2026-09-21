@@ -455,7 +455,7 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     A_LL[:,ip,ip] = dU[:,1]          
 
     chi = em4phi
-    S   = 1.0/(1.0 + np.exp(-100.0*(chi - 0.15)))
+    S   = 1.0#/(1.0 + np.exp(-100.0*(chi - 0.15)))
     
     bssn_rhs.a_LL = background.inverse_scaling_matrix * A_LL
     bssn_rhs.K    = dU[:,2]

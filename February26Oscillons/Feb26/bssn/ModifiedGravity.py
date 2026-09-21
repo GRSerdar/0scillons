@@ -265,7 +265,8 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
 
     ####### Coupling functions ########
     chi = em4phi
-    S   = 1.0/(1.0 + np.exp(-100.0*(chi - chi0)))
+    #S   = 1.0/(1.0 + np.exp(-100.0*(chi - chi0)))
+    S = 1.0
 
 
     if coupling == "linear":

@@ -6,8 +6,12 @@ Set the initial conditions for all the variables for an isotropic Schwarzschild 
 See further details in https://github.com/GRChombo/engrenage/wiki/Running-the-black-hole-example.
 """
 
+from pathlib import Path
+
 import numpy as np
 from scipy.interpolate import interp1d, CubicSpline
+
+_OSCILLATON_CSV_DIR = Path(__file__).resolve().parent / "oscillaton"
 
 from core.grid import *
 from bssn.bssnstatevariables import *
@@ -49,9 +53,9 @@ def get_initial_state(grid: Grid, background, parameters, scalar_matter, bump_am
     # Oscillon initial data Katy:
 
     #Importing tabulated initial data from Katy
-    grr0_data   = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/grr0.csv")
-    lapse0_data = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/lapse0.csv")
-    v0_data     = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/v0.csv")
+    grr0_data   = np.loadtxt(_OSCILLATON_CSV_DIR / "grr0.csv")
+    lapse0_data = np.loadtxt(_OSCILLATON_CSV_DIR / "lapse0.csv")
+    v0_data     = np.loadtxt(_OSCILLATON_CSV_DIR / "v0.csv")
 
     length      = np.size(grr0_data)
 

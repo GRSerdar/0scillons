@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write a CSV manifest of every simulation run found under $VSC_DATA/oscillon_runs.
+"""Write a CSV manifest of every simulation run found under oscillon_runs_data.
 
 The manifest records the parameters and solver outcome of each run so the set of
 completed simulations is known independently of the (large, un-versioned) data
@@ -12,8 +12,11 @@ import argparse
 import csv
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
 
 FIELDS = [
     "run_tag", "lambda_gb", "g2", "selfinteraction", "a_mg", "b_mg", "chi0",
@@ -56,9 +59,14 @@ def collect(run_dir):
 
 
 def main():
-    default_runs = os.path.join(
-        os.environ.get("VSC_DATA", os.path.expanduser("~")), "oscillon_runs"
-    )
+    default_runs = os.environ.get("OSCILLON_RUN_DATA")
+    if not default_runs:
+        vsc = os.environ.get("VSC_DATA")
+        default_runs = (
+            os.path.join(vsc, "oscillon_runs")
+            if vsc
+            else str(_REPO_ROOT / "oscillon_runs_data")
+        )
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("runs_dir", nargs="?", default=default_runs)
     parser.add_argument("-o", "--output", default="run_manifest.csv")

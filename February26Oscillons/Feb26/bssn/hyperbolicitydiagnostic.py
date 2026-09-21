@@ -171,7 +171,7 @@ def get_hyperbolicity_diagnostic(states_over_time, t, grid, background,
         d1_u_r   = matter.d1_u[:, i_r]
 
         chi = em4phi
-        S   = 1.0 / (1.0 + np.exp(-100.0 * (chi - chi0)))
+        S   = 1.0# / (1.0 + np.exp(-100.0 * (chi - chi0)))
         S_ell = np.maximum(S * ell_sq, _EPS)
         fp  = gb.d1Lambdadu / S_ell
         fpp = gb.d2Lambdadduu / S_ell

@@ -4,8 +4,12 @@ Set the initial conditions for all the variables for an oscillaton.
 See further details in https://github.com/GRChombo/engrenage/wiki/Running-the-oscillaton-example.
 """
 
+from pathlib import Path
+
 import numpy as np
 from scipy.interpolate import interp1d
+
+_OSCILLATON_CSV_DIR = Path(__file__).resolve().parent / "oscillaton"
 
 from bssn.tensoralgebra import *
 from core.grid import Grid
@@ -31,9 +35,9 @@ def get_initial_state(grid: Grid, background, bumper) :
     ) = initial_state
     
     # Get stationary oscillaton data for the vars, in both positive and negative R
-    grr0_data    = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/grr0.csv")
-    lapse0_data  = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/lapse0.csv")
-    v0_data      = np.loadtxt("/user/leuven/384/vsc38419/0scillons/source/initialdata/oscillaton/v0.csv")
+    grr0_data    = np.loadtxt(_OSCILLATON_CSV_DIR / "grr0.csv")
+    lapse0_data  = np.loadtxt(_OSCILLATON_CSV_DIR / "lapse0.csv")
+    v0_data      = np.loadtxt(_OSCILLATON_CSV_DIR / "v0.csv")
     length       = np.size(grr0_data)
     grr0_data    = np.concatenate((np.flip(grr0_data), grr0_data[1:length]))
     lapse0_data  = np.concatenate((np.flip(lapse0_data), lapse0_data[1:length]))
