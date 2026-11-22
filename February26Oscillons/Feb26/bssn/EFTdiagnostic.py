@@ -132,7 +132,9 @@ def get_eft_diagnostic(states_over_time, t, grid, background, matter, params, lo
         K_LL = bar_A_LL + one_third * bar_gamma_LL * bssn.K[:, np.newaxis, np.newaxis]
         
         # (1) Spatial-Spatial
-        Cij = DiDju - K_LL * (matter.v / chi_c)[:, np.newaxis, np.newaxis] 
+        # h_i^mu h_j^nu nabla_mu nabla_nu phi = D_i D_j phi + K_ij v
+        # (K = -3H on FLRW, so this is -H v gamma_ij).
+        Cij = DiDju + K_LL * (matter.v / chi_c)[:, np.newaxis, np.newaxis] 
         
         # (2) Normal-Spatial
         Ci = (matter.d1_v - (bssn.K / 3.0)[:, np.newaxis] * matter.d1_u 
@@ -177,7 +179,7 @@ def get_eft_diagnostic(states_over_time, t, grid, background, matter, params, lo
         # is baked into gb.d1Lambdadu and gb.Sigma at the code level.
         chi = em4phi
         S = _sigmoid_switch(chi, chi0)
-        S_ell = np.maximum(S * np.abs(lambda_GB), _EPS)
+        S_ell = np.maximum(S, _EPS)
 
         # LAMBDA COUPLING Scales
         # We take the absolute value of the first derivative of the coupling function 

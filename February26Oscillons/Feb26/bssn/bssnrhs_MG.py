@@ -85,6 +85,8 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
 
     rho_g2     = gb.rho_g2
     S_g2_L     = gb.S_g2_L
+    Sij_g2     = gb.Sij_g2
+    S_g2       = gb.S_g2
 
     Vt         = gb.Vt
     Sigma      = gb.Sigma
@@ -345,10 +347,13 @@ def get_bssn_rhs(bssn_rhs, r, matter, bssn_vars, d1, d2, grid, background, gb, g
     Y_Pi = (four_thirds) * iSigma * d1Lambdadu * Trace_M
 
    # the RHS (Added the GB backreaction corrections here)
+    Sij_use = EMtensor.Sij + Sij_g2
+    S_use = EMtensor.S + S_g2
+    Sij_TF = Sij_use - one_third * gamma_LL * S_use[:, np.newaxis, np.newaxis]
     Z_A_LL = (background.scaling_matrix * dadt 
-              - (bssn_vars.lapse[:, np.newaxis, np.newaxis] * em4phi[:,np.newaxis, np.newaxis] * eight_pi_G * ((EMtensor.Sij-one_third*gamma_LL*EMtensor.S[:,np.newaxis,np.newaxis]) + bar_TraceFree_S_GB_LL)  ))#+ perp_TF_S_GB_LL))
+              - (bssn_vars.lapse[:, np.newaxis, np.newaxis] * em4phi[:,np.newaxis, np.newaxis] * eight_pi_G * (Sij_TF + bar_TraceFree_S_GB_LL)  ))#+ perp_TF_S_GB_LL))
     
-    DKDT = (dKdt + 0.5 * eight_pi_G * bssn_vars.lapse  * ((EMtensor.rho + rho_GB + rho_g2) + (EMtensor.S + bar_S_GB))# + perp_S_GB) # bar_S_GB is already modified with the g2 terms 
+    DKDT = (dKdt + 0.5 * eight_pi_G * bssn_vars.lapse  * ((EMtensor.rho + rho_GB + rho_g2) + (S_use + bar_S_GB))# + perp_S_GB) # bar_S_GB is already modified with the g2 terms 
             + ((bssn_vars.lapse*b)/(4*(1+b))) * ( - 2* eight_pi_G * (EMtensor.rho + rho_GB + rho_g2))) #the rho matter terms are added here (now also including the g2 term)
     
     ########################################################

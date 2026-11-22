@@ -43,7 +43,8 @@ class GBVars:
         self.quadratic                  = np.zeros(N)    
         self.rho_g2                     = np.zeros(N)
         self.S_g2_L                     = np.zeros((N,3))
-        # The trace and trace free part of Sij will be added inline
+        self.Sij_g2                     = np.zeros((N,3,3))
+        self.S_g2                       = np.zeros(N)
 
         # Full L_GB (includes perp terms, set after matrix solve)
         self.full_L_GB              = np.zeros(N)
@@ -158,11 +159,15 @@ def get_gb_core(gb_vars: GBVars, r, bssn_vars, d1, d2, grid, background,lambda_G
     # bar A_kj bar A^j_l
     bar_A_LL_A_UL = np.einsum("xaj,xkj,xal->xkl",bar_gamma_UU,bar_A_LL,bar_A_LL)
 
-    # D_k D_l lapse 
-    DkDl_lapse = (d2.lapse
-                  - np.einsum('xkij,xk->xij', bar_chris, d1.lapse)
-                  - 2.0 * np.einsum('xi,xj->xij', d1.phi, d1.lapse)
-                  - 2.0 * np.einsum('xj,xi->xij', d1.phi, d1.lapse))
+    # D_k D_l lapse. The last term is the trace piece kept by GRFolres.
+    dphi_dalpha = np.einsum("xij,xi,xj->x", bar_gamma_UU, d1.phi, d1.lapse)
+    DkDl_lapse = (
+        d2.lapse
+        - np.einsum("xkij,xk->xij", bar_chris, d1.lapse)
+        - 2.0 * np.einsum("xi,xj->xij", d1.phi, d1.lapse)
+        - 2.0 * np.einsum("xj,xi->xij", d1.phi, d1.lapse)
+        + 2.0 * bar_gamma_LL * dphi_dalpha[:, None, None]
+    )
 
     # Line2 
     # We put the \partial_\perp terms to zero
@@ -337,10 +342,14 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     # A^L_L contractions & DkDl of lapse
     bar_A_LL_A_UL = np.einsum('xaj,xkj,xal->xkl', bar_gamma_UU, bar_A_LL, bar_A_LL)
 
-    DkDl_lapse = ( d2.lapse
-                  - np.einsum('xkij,xk->xij', bar_chris, d1.lapse)
-                  - 2.0*np.einsum('xi,xj->xij', d1.phi, d1.lapse)
-                  - 2.0*np.einsum('xj,xi->xij', d1.phi, d1.lapse)) 
+    dphi_dalpha = np.einsum("xij,xi,xj->x", bar_gamma_UU, d1.phi, d1.lapse)
+    DkDl_lapse = (
+        d2.lapse
+        - np.einsum("xkij,xk->xij", bar_chris, d1.lapse)
+        - 2.0 * np.einsum("xi,xj->xij", d1.phi, d1.lapse)
+        - 2.0 * np.einsum("xj,xi->xij", d1.phi, d1.lapse)
+        + 2.0 * bar_gamma_LL * dphi_dalpha[:, None, None]
+    ) 
     
     DiDj_u = ( matter.d2_u 
                   - np.einsum("xmij, xm->xij",bar_chris, matter.d1_u)
@@ -423,12 +432,23 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
                                        + 4 * g2_eff * matter.v * np.einsum("xij, xj, xi->x", gamma_UU, matter.d1_u, matter.d1_v)
                                        + 2* g2_eff * chi * (matter.v * np.einsum("xij, xij->x",d_u_phi_d_u_phi, bar_A_LL) - np.einsum("xij, xij->x",d_u_phi_d_u_phi, Box_LL)))
     
-    # g2 contribution to rho
-    rho_g2 = g2_eff * Vt * (Vt/4 + matter.v * matter.v)
+    # g2 contribution to the Hilbert stress of L = g2 X^2, X = -Vt/2.
+    # rho = 2 g2 X v^2 - g2 X^2. The previous line without the leading minus
+    # stored -rho.
+    X = -0.5 * Vt
+    rho_g2 = 2.0 * g2_eff * X * matter.v**2 - g2_eff * X**2
 
-    # g2 contributino to Si
+    # S_i = -n^mu h_i^nu T_munu. This piece already had the Hilbert sign.
     _g2_col = g2_eff[:,np.newaxis] if np.ndim(g2_eff) == 1 else g2_eff
     S_g2_L = _g2_col * Vt[:,np.newaxis] * matter.v[:,np.newaxis] * matter.d1_u
+
+    # Physical lowered S_ij, same index position as ScalarMatter.Sij.
+    Sij_g2 = (
+        (2.0 * g2_eff * X)[:, None, None]
+        * np.einsum("xi,xj->xij", matter.d1_u, matter.d1_u)
+        + (g2_eff * X * X)[:, None, None] * gamma_LL
+    )
+    S_g2 = get_trace(Sij_g2, gamma_UU)
 
     ########################## Extra objects needed for the g2 term ##########################
    
@@ -482,9 +502,9 @@ def get_esgb_br_terms(gb_vars: GBVars, r, matter, bssn_vars, d1, d2, grid, backg
     gb_vars.Vt[:]                   = Vt
     gb_vars.rho_g2[:]               = rho_g2
     gb_vars.S_g2_L[:]               = S_g2_L
+    gb_vars.Sij_g2[:]               = Sij_g2
+    gb_vars.S_g2[:]                 = S_g2
     gb_vars.Sigma[:]                = Sigma
-    gb_vars.rho_g2[:]               = rho_g2
-    gb_vars.S_g2_L[:]               = S_g2_L
 
 
     # Do we need to store these ?
