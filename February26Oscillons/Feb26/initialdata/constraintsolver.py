@@ -9,6 +9,9 @@ import matplotlib.cm as cm
 
 # import modified gravity objects
 from bssn.ModifiedGravity import GBVars, get_gb_core, get_esgb_br_terms
+from bssn.bssnstatevariables import (
+    NUM_BSSN_VARS, idx_phi, idx_K, idx_arr, idx_att, idx_app, idx_lapse,
+)
 
 from core.grid import *
 from bssn.tensoralgebra import *
@@ -81,57 +84,105 @@ class CTTKBHConstraintSolver :
         self.App0 = self.App
         
     
+    def _scalar_sources_on_R(self):
+        """Scalar energy density and radial momentum on the solver grid.
+
+        V(phi) is the alpha-attractor potential used by the evolution.
+        S_r = -v du/dr matches scalarmatter_MG.ScalarMatter.get_emtensor.
+        """
+        rho = (self.scalar_matter.V_of_u(self.u)
+               + 0.5 / (self.psi**4.0) * self.dudr * self.dudr
+               + 0.5 * self.v * self.v)
+        Si = -self.v * self.dudr
+        return rho, Si
+
+    def _push_geometry_to_bssn(self):
+        """Write the current solver geometry into the BSSN state on grid.r.
+
+        psi stays the free conformal factor. K and A_ij are the variables
+        being solved, so the effective GB stress has to see their latest values.
+        """
+        r = self._grid.r
+        psi_r = CubicSpline(self.R, self.psi)(r)
+        K_r = CubicSpline(self.R, self.K)(r)
+        arr_r = CubicSpline(self.R, self.Arr * self.psi**(-6.0))(r)
+        att_r = CubicSpline(self.R, self.Att * self.psi**(-6.0) / self.R**2)(r)
+
+        state = self._id_state
+        state[:] = 0.0
+        state[idx_phi] = np.log(np.maximum(psi_r, 1.0e-30))
+        state[idx_lapse] = 1.0
+        state[idx_K] = K_r
+        state[idx_arr] = arr_r
+        state[idx_att] = att_r
+        state[idx_app] = att_r
+
+        geom_idx = [idx_phi, idx_K, idx_arr, idx_att, idx_app, idx_lapse]
+        self._grid.fill_inner_boundary(state, geom_idx)
+        self._grid.fill_outer_boundary(state, geom_idx)
+
+        self._bssn_vars.set_bssn_vars(state)
+        self._d1 = self._grid.get_d1_metric_quantities(state)
+        self._d2 = self._grid.get_d2_metric_quantities(state)
+
+    def _refresh_constraint_sources(self):
+        """Rebuild rho and S_r from the scalar, GB and g2 stresses at the current K, A_ij."""
+        self._push_geometry_to_bssn()
+
+        get_gb_core(self.gb_vars, self._grid.r, self._bssn_vars, self._d1, self._d2,
+                    self._grid, self._background,
+                    lambda_GB=self.lambda_GB, chi0=self.chi0)
+        get_esgb_br_terms(self.gb_vars, self._grid.r, self.scalar_matter, self._bssn_vars,
+                          self._d1, self._d2, self._grid, self._background,
+                          lambda_GB=self.lambda_GB, chi0=self.chi0,
+                          coupling=self.coupling, g2=self.g2)
+
+        rho_GB = CubicSpline(self.r, np.asarray(self.gb_vars.rho_GB, dtype=float))(self.R)
+        rho_g2 = CubicSpline(self.r, np.asarray(self.gb_vars.rho_g2, dtype=float))(self.R)
+        S_GB = CubicSpline(self.r, np.asarray(self.gb_vars.S_GB_L[:, 0], dtype=float))(self.R)
+        S_g2 = CubicSpline(self.r, np.asarray(self.gb_vars.S_g2_L[:, 0], dtype=float))(self.R)
+
+        rho_s, Si_s = self._scalar_sources_on_R()
+        self.rho = rho_s + rho_GB + rho_g2
+        self.SiU = Si_s + S_GB + S_g2
+
     def get_evolution_vars(self) :
         
         assert (self.background_set and self.matter_source_set), "BG and source not set"
         
-        # Solve for the constraint vars
+        # K and A_ij enter rho_GB, so the sources are rebuilt every pass.
+        # K is under-relaxed for the same reason W^r is: the fixed point can oscillate.
         error = 10.0
         tol = 1.0e-2
         max_iter = 50
         iteration = 0
-        while ((error > tol) and (iteration < max_iter)):
-            # Because the convergence is oscillatory, best to only add a fraction of the correction each time
+        # Do not put `error` in this condition. A damped step can already
+        # look small, and the slice is only accepted after a full update.
+        while iteration < max_iter:
             frac = (iteration + 0.5 * max_iter) / max_iter
             frac = min(frac, 1.0)
-            deltaK = self.get_deltaK() # Because Aij has changed
-            self.K = self.K0 + deltaK
+
+            self._refresh_constraint_sources()
+            Ham = self.get_Ham()
             Mom = self.get_Mom()
-            cs = CubicSpline(self.R, deltaK)
-            ddeltaKdr = cs(self.R, 1) # first derivative of dK
-            # Solve for correction to Wr, sourced by change in dKdr
-            Wr, dWrdr, Q = self.solve_for_Wr(ddeltaKdr)
+            error = np.linalg.norm(Ham) + np.linalg.norm(Mom)
+            # frac < 1 is only a damper. Accept the slice once a full update
+            # agrees with the sources rebuilt from that same K and A_ij.
+            if error <= tol and frac == 1.0:
+                iteration = iteration + 1
+                break
+
+            K_target = self.K0 + self.get_deltaK()
+            self.K = self.K + frac * (K_target - self.K)
+            dKdr = CubicSpline(self.R, self.K)(self.R, 1)
+            Wr, dWrdr, Q = self.solve_for_Wr(dKdr)
             self.Wr = self.Wr0 + frac * Wr
             self.dWrdr = self.dWrdr0 + frac * dWrdr
             self.Q = self.Q0 + frac * Q
-            self.update_Aij_vars() # Need full Aijs for the Ham constraint
-            Ham = self.get_Ham()
-            error = np.linalg.norm(Ham) + np.linalg.norm(Mom)
+            self.update_Aij_vars()
             iteration = iteration + 1
-            #print("error is ", error, " after ", iteration)
-            color = cm.viridis(iteration / max_iter)   # Nmax = total iterations you expect
-            Ham = self.get_Ham()
-            Mom = self.get_Mom()
-            #plt.plot(self.R, Ham, '-',color=color, label=f"{iteration}")
-            #plt.plot(self.R, Mom, '--',color=color, label=f"{iteration}")
-            #plt.legend(loc='best')
-            #plt.grid()
         
         print("error is: ", error, " after iter: ", iteration)
- 
-        # One final iteration to make sure we add the full correction at least once
-        deltaK = self.get_deltaK() # Because Aij has changed
-        self.K = self.K0 + deltaK
-        cs = CubicSpline(self.R, deltaK)
-        ddeltaKdr = cs(self.R, 1) # first derivative of dK
-        # Solve for correction to Wr, sourced by change in dKdr
-        Wr, dWrdr, Q = self.solve_for_Wr(ddeltaKdr)
-        self.Wr = self.Wr0 + frac * Wr
-        self.dWrdr = self.dWrdr0 + frac * dWrdr        
-
-        # Fix Ham constraint last as we can do this to machine precision
-        deltaK = self.get_deltaK()
-        self.K = self.K0 + deltaK 
 
         # Plot to check internal measure of constraints
         """
@@ -177,39 +228,16 @@ class CTTKBHConstraintSolver :
         cs2 = CubicSpline(self.r, a_dudr)
         self.dudr = cs2(self.R)
 
-        #################################################################################
-        # Modified Gravity Changes
+        # Kept so the GB/g2 stresses can be recomputed once K and A_ij change.
+        self.scalar_matter = scalar_matter
+        self._grid = grid
+        self._background = background
+        self._bssn_vars = bssn_vars
+        self._d1 = d1
+        self._d2 = d2
+        self._id_state = np.zeros((NUM_BSSN_VARS, grid.N))
 
-        get_gb_core(self.gb_vars, grid.r , bssn_vars, d1, d2, grid, background,
-                lambda_GB=self.lambda_GB, chi0=self.chi0)
-        
-        get_esgb_br_terms(self.gb_vars, grid.r , scalar_matter, bssn_vars, d1, d2, grid,
-                      background, lambda_GB=self.lambda_GB, chi0=self.chi0, coupling=self.coupling, g2=self.g2)
-
-        # Calculate the necessary MG terms:
-        rho_GB_r = self.gb_vars.rho_GB                     
-        S_GB_L = self.gb_vars.S_GB_L                      
-        S_GB_r = S_GB_L[:,0] # Only radial direction due to spherical symmetry
-
-        # We interpolate them on the constraint solver grid
-        cs_rhoGB = CubicSpline(self.r, rho_GB_r)
-        rho_GB   = cs_rhoGB(self.R)
-
-        cs_SGB   = CubicSpline(self.r, S_GB_r)
-        S_GB   = cs_SGB(self.R)
-        #################################################################################
-
-        # Rho (adding modified gravity terms)
-        self.rho = (0.5 * self.scalar_mass * self.scalar_mass * self.u * self.u 
-                    + 0.5 / (self.psi**4.0) * self.dudr * self.dudr
-                    + 0.5 * self.v * self.v)
-        
-        self.rho  += rho_GB
-        
-        # S_L (adding modified gravity terms)
-        self.SiU = self.v * self.dudr
-
-        self.SiU  += S_GB
+        self._refresh_constraint_sources()
         
         # Adjust psi solution for Schwazschild de Sitter??
         #CC = eight_pi_G * self.rho

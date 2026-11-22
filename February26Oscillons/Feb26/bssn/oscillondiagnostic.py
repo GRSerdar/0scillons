@@ -141,7 +141,7 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
 
         # ── Modified-gravity objects (needed for rho_GB) ────────────────
         gb = GBVars(N)
-        if lambda_GB != 0:
+        if lambda_GB != 0 or g2 != 0:
             get_gb_core(gb, r, bssn_N, d1, d2, grid, background,
                         lambda_GB, chi0)
             get_esgb_br_terms(gb, r, matter, bssn_N, d1, d2, grid,
@@ -149,7 +149,9 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
 
         # ── Energy-momentum tensor ──────────────────────────────────────
         emtensor = matter.get_emtensor(r, bssn_N, background, gb)
-        rho = emtensor.rho #+ gb.rho_GB #you can remov this if mg terms are not
+        #rho = emtensor.rho #+ gb.rho_GB #you can remov this if mg terms are not
+        rho = emtensor.rho #+ gb.rho_GB + gb.rho_g2 #you can remov this if mg terms are not
+        
 
         # ── Full L_GB via matrix solve (post-backreaction) ────────────
         if lambda_GB != 0:
@@ -282,6 +284,171 @@ def get_oscillon_diagnostic(states_over_time, t, grid, background, matter,
         "alpha_c"   : alpha_c_arr,
         "tau_c"     : tau_c,
     }
+
+
+def _mass_radius_compactness(rho, e6phi, r, r_phys_mask, surface_threshold):
+    """Oscillon mass, volume-equivalent radius and compactness for one density.
+
+    Same 5% contour and integrals as ``get_oscillon_diagnostic``.
+    Returns ``(M, R, C, outer_index)``.  ``outer_index`` is the grid index of
+    the outermost point inside the contour, or -1 if the contour is empty.
+    """
+    rho_diag = np.where(r_phys_mask, rho, -np.inf)
+    if not np.any(np.isfinite(rho_diag)):
+        return 0.0, 0.0, 0.0, -1
+    rho_c = np.max(rho_diag)
+    if not np.isfinite(rho_c) or rho_c <= 0.0:
+        return 0.0, 0.0, 0.0, -1
+
+    osc_mask = r_phys_mask & (rho > surface_threshold * rho_c)
+    if not np.any(osc_mask):
+        return 0.0, 0.0, 0.0, -1
+
+    idx = np.flatnonzero(osc_mask)
+    outer_index = int(idx[np.argmax(r[idx])])
+
+    rp_osc = r[osc_mask]
+    dV_osc = 4.0 * np.pi * rp_osc**2 * e6phi[osc_mask]
+    mass = float(_trapz(rho[osc_mask] * dV_osc, rp_osc))
+    vol = float(_trapz(dV_osc, rp_osc))
+    radius = (3.0 * vol / (4.0 * np.pi))**(1.0 / 3.0) if vol > 0.0 else 0.0
+    compact = mass / (8.0 * np.pi * radius) if radius > 0.0 else 0.0
+    return mass, radius, compact, outer_index
+
+
+def _misner_sharp_profile(r, bssn, d1, background):
+    """Geometric Misner-Sharp mass and areal radius on the grid.
+
+    Returns ``(M_MS, R_areal)`` with ``M_MS = -R_areal * sigma / 2``.
+    Same expression as ``hyperbolicitydiagnostic.get_hyperbolicity_diagnostic``.
+    With ``eight_pi_G = 1`` this mass is smaller than ``∫ ρ dV`` by a factor 8π.
+    """
+    em4phi = np.exp(-4.0 * bssn.phi)
+    e4phi = 1.0 / em4phi
+    e2phi = np.exp(2.0 * bssn.phi)
+
+    bar_gamma_LL = get_bar_gamma_LL(r, bssn.h_LL, background)
+    bar_gamma_UU = get_bar_gamma_UU(r, bssn.h_LL, background)
+    bar_A_LL = get_bar_A_LL(r, bssn, background)
+
+    gamma_UU = em4phi[:, np.newaxis, np.newaxis] * bar_gamma_UU
+    gamma_rr_inv = gamma_UU[:, i_r, i_r]
+
+    bar_gamma_tt = np.maximum(bar_gamma_LL[:, i_t, i_t], 1e-30)
+    sqrt_bar_gamma_tt = np.sqrt(bar_gamma_tt)
+    areal = e2phi * sqrt_bar_gamma_tt
+    safe_R = np.maximum(np.abs(areal), 1e-30)
+
+    dphi_dr = d1.phi[:, i_r]
+    d_bar_gamma_tt_dr = (
+        background.d1_hat_gamma_LL[:, i_r, i_t, i_t]
+        + background.d1_scaling_matrix[:, i_t, i_t, i_r] * bssn.h_LL[:, i_t, i_t]
+        + background.scaling_matrix[:, i_t, i_t] * d1.h_LL[:, i_t, i_t, i_r]
+    )
+    dR_dr = e2phi * (
+        2.0 * dphi_dr * sqrt_bar_gamma_tt
+        + d_bar_gamma_tt_dr / (2.0 * sqrt_bar_gamma_tt)
+    )
+
+    bar_A_tt = bar_A_LL[:, i_t, i_t]
+    K_tt = e4phi * (bar_A_tt + one_third * bar_gamma_tt * bssn.K)
+    sigma = gamma_rr_inv * dR_dr**2 - (K_tt / safe_R)**2 - 1.0
+    return -safe_R * sigma / 2.0, areal
+
+
+def get_oscillon_mass_definitions(states_over_time, t, grid, background, matter,
+                                  params, surface_threshold=0.05, r_max_diag=None):
+    """Mass, radius and compactness for three oscillon-mass definitions.
+
+    Does not replace ``get_oscillon_diagnostic``.  The matter-density series
+    there (and in ``diagnostics.npz``) is left unchanged.
+
+    Definitions
+    -----------
+    phi : ρ = emtensor.rho.  5% contour, then
+          M = ∫ ρ √γ d³x,  R = (3V/4π)^(1/3),  C = M / (8π R).
+    tot : same algorithm with ρ = emtensor.rho + ρ_GB + ρ_g2, so the
+          contour, radius and mass all move.
+    ms  : Misner-Sharp mass at the outer edge of the *phi* 5% contour.
+          The stored radius is the phi volume radius.  The stored mass is
+          8π M_MS so it is in the same units as ∫ ρ dV (``eight_pi_G = 1``).
+          Compactness is C = M_MS / R_areal at that outer point.
+
+    Returns
+    -------
+    dict of time series, each of shape (num_times,):
+        M_phi, R_phi, C_phi, M_tot, R_tot, C_tot, M_ms, R_ms, C_ms
+    """
+    lambda_GB, a_mg, b_mg, chi0, coupling, g2 = params
+
+    r = grid.r
+    N = grid.num_points
+    num_times = len(t) if np.ndim(t) > 0 else 1
+
+    out = {
+        name: np.zeros(num_times)
+        for name in (
+            "M_phi", "R_phi", "C_phi",
+            "M_tot", "R_tot", "C_tot",
+            "M_ms", "R_ms", "C_ms",
+        )
+    }
+
+    r_inner = grid.min_dr * 0.5
+    r_outer = r_max_diag if r_max_diag is not None else np.inf
+    r_phys_mask = (r > r_inner) & (r <= r_outer)
+
+    for i in range(num_times):
+        state = states_over_time if num_times == 1 else states_over_time[i]
+        state = state.reshape(grid.NUM_VARS, -1)
+
+        bssn_N = BSSNVars(N)
+        bssn_N.set_bssn_vars(state)
+        matter.set_matter_vars(state, bssn_N, grid)
+
+        d1 = grid.get_d1_metric_quantities(state)
+        d2 = grid.get_d2_metric_quantities(state)
+
+        gb = GBVars(N)
+        if lambda_GB != 0 or g2 != 0:
+            get_gb_core(gb, r, bssn_N, d1, d2, grid, background,
+                        lambda_GB, chi0)
+            get_esgb_br_terms(gb, r, matter, bssn_N, d1, d2, grid,
+                              background, lambda_GB, chi0, coupling, g2)
+
+        emtensor = matter.get_emtensor(r, bssn_N, background, gb)
+        rho_phi = emtensor.rho
+        rho_tot = emtensor.rho + gb.rho_GB + gb.rho_g2
+
+        e6phi = np.exp(6.0 * bssn_N.phi)
+        M_phi, R_phi, C_phi, i_outer = _mass_radius_compactness(
+            rho_phi, e6phi, r, r_phys_mask, surface_threshold)
+        M_tot, R_tot, C_tot, _ = _mass_radius_compactness(
+            rho_tot, e6phi, r, r_phys_mask, surface_threshold)
+
+        M_ms = 0.0
+        R_ms = R_phi
+        C_ms = 0.0
+        if i_outer >= 0 and R_phi > 0.0:
+            m_profile, areal = _misner_sharp_profile(r, bssn_N, d1, background)
+            # 8π M_MS matches ∫ ρ dV when eight_pi_G = 1.
+            # Compactness uses the areal radius of this surface.
+            R_areal = float(areal[i_outer])
+            M_ms = float(8.0 * np.pi * m_profile[i_outer])
+            if R_areal > 0.0:
+                C_ms = float(m_profile[i_outer] / R_areal)
+
+        out["M_phi"][i] = M_phi
+        out["R_phi"][i] = R_phi
+        out["C_phi"][i] = C_phi
+        out["M_tot"][i] = M_tot
+        out["R_tot"][i] = R_tot
+        out["C_tot"][i] = C_tot
+        out["M_ms"][i] = M_ms
+        out["R_ms"][i] = R_ms
+        out["C_ms"][i] = C_ms
+
+    return out
 
 
 # ──────────────────────────────────────────────────────────────────────────────

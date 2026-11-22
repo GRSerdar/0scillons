@@ -50,12 +50,18 @@ TABLE_I = {
 
 
 def build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr,
-                  coupling="quadratic", g2=0.0):
+                  coupling="quadratic", g2=0.0, suffix=""):
     tag = (
         f"lgb{lgb:g}_mu{selfinteraction:g}_a{a_mg:g}_b{b_mg:g}"
         f"_amp{perturbation:g}_R{width:g}_dr{min_dr:g}"
         f"_{coupling}_g2{g2:g}"
     )
+    # Suffix sits after _g2 so the notebook still parses the same physics key.
+    suffix = str(suffix).strip().strip("_")
+    if suffix:
+        if not suffix.replace("_", "").isalnum():
+            raise ValueError(f"tag suffix must be alphanumeric, got {suffix!r}")
+        tag = f"{tag}_{suffix}"
     return tag
 
 
@@ -88,7 +94,10 @@ def run_simulation(args):
     lgb = args.lambda_gb
     g2 = args.g2
 
-    tag = build_run_tag(lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr, coupling, g2)
+    tag = build_run_tag(
+        lgb, selfinteraction, a_mg, b_mg, perturbation, width, min_dr,
+        coupling, g2, suffix=args.tag_suffix,
+    )
     data_dir = str(RUN_DATA / tag)
     os.makedirs(data_dir, exist_ok=True)
 
@@ -233,6 +242,8 @@ def parse_args():
                    help="Maximum grid spacing (default: 2)")
     p.add_argument("--force", action="store_true",
                    help="Overwrite existing data")
+    p.add_argument("--tag-suffix", type=str, default="",
+                   help="Appended after the run tag. Does not change the physics.")
     p.add_argument("--no-diagnostics", dest="diagnostics", action="store_false",
                    help="Skip oscillon diagnostics after evolution")
     p.set_defaults(diagnostics=True)
